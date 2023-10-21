@@ -1,4 +1,3 @@
-// controllers/roleController.js
 
 const Role = require('../models/roleModel');
 
