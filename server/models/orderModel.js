@@ -7,6 +7,8 @@ const orderSchema = new Schema({
     address: String,
     order_date: Date,
     total_price: Number,
+    status: String,
+    note: String
 });
 
 const Order = mongoose.model('Order', orderSchema);

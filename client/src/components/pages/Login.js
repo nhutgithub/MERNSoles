@@ -1,6 +1,41 @@
-import React from 'react';
+import React, { useState } from 'react';
+import axios from 'axios';
+import API_URL from '../../config';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function Login() {
+    const isLoggedIn = localStorage.getItem('isLoggedIn');
+
+    if (isLoggedIn) {
+        window.location.href = '/';
+    }
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+
+    const handleLogin = async () => {
+        try {
+            const response = await axios.post(`${API_URL}/api/users/login`, { username, password });
+            localStorage.setItem('user_id', response.data.user._id);
+            localStorage.setItem('username', response.data.user.username);
+            localStorage.setItem('firstname', response.data.user.firstname);
+            localStorage.setItem('lastname', response.data.user.lastname);
+            localStorage.setItem('email', response.data.user.email);
+            localStorage.setItem('address', response.data.user.address);
+            localStorage.setItem('phone', response.data.user.phone);
+            localStorage.setItem('role', response.data.roleName);
+            localStorage.setItem('isLoggedIn', true);
+            if(response.status === 200){
+                toast('Đăng nhập thành công');
+                window.location.href = '/';
+            }
+            else{
+                toast(response.data.message);
+            }
+        } catch (error) {
+            console.error('Lỗi đăng nhập:', error);
+        }
+    }
     return (
         <>
             <main className="mainContent-theme ">
@@ -15,33 +50,24 @@ function Login() {
                             <div className="col-md-6 col-xs-12 wrapbox-content-account">
                                 <div id="customer-login">
                                     <div id="login" className="userbox">
-                                        <div className="accounttype">
-                                            <h2 className="title" />
-                                        </div>
                                         <form
                                             acceptCharset="UTF-8"
                                             action="/account/login"
                                             id="customer_login"
                                             method="post"
                                         >
-                                            <input
-                                                name="form_type"
-                                                type="hidden"
-                                                defaultValue="customer_login"
-                                            />
-                                            <input name="utf8" type="hidden" defaultValue="✓" />
                                             <div className="clearfix large_form">
                                                 <label htmlFor="customer_email" className="icon-field">
                                                     <i className="icon-login icon-envelope " />
                                                 </label>
                                                 <input
-                                                    required=""
+                                                    required
                                                     type="email"
-                                                    defaultValue=""
                                                     name="customer[email]"
                                                     id="customer_email"
                                                     placeholder="Email"
                                                     className="text"
+                                                    value={username} onChange={e => setUsername(e.target.value)}
                                                 />
                                             </div>
                                             <div className="clearfix large_form">
@@ -49,27 +75,27 @@ function Login() {
                                                     <i className="icon-login icon-shield" />
                                                 </label>
                                                 <input
-                                                    required=""
+                                                    required
                                                     type="password"
-                                                    defaultValue=""
                                                     name="customer[password]"
                                                     id="customer_password"
                                                     placeholder="Mật khẩu"
                                                     className="text"
                                                     size={16}
+                                                    value={password} onChange={e => setPassword(e.target.value)}
                                                 />
                                             </div>
                                             <div className="clearfix action_account_custommer">
-                                                <div className="action_bottom button dark">
+                                                <div className="action_bottom btn btn-outline-primary">
                                                     <input
                                                         className="btn btn-signin"
-                                                        type="submit"
+                                                        onClick={handleLogin}
                                                         defaultValue="Đăng nhập"
                                                     />
                                                 </div>
                                                 <div className="req_pass">
                                                     <a
-                                                        href="#"
+                                                        href="/"
                                                     >
                                                         Quên mật khẩu?
                                                     </a>
@@ -80,63 +106,6 @@ function Login() {
                                                     </a>
                                                 </div>
                                             </div>
-                                            <input
-                                                id="108235b3450d414584daed9a4bda9980"
-                                                name="g-recaptcha-response"
-                                                type="hidden"
-                                            />
-                                        </form>
-                                    </div>
-                                    <div
-                                        id="recover-password"
-                                        style={{ display: "none" }}
-                                        className="userbox"
-                                    >
-                                        <div className="accounttype">
-                                            <h2>Phục hồi mật khẩu</h2>
-                                        </div>
-                                        <form
-                                            acceptCharset="UTF-8"
-                                            action="/account/recover"
-                                            method="post"
-                                        >
-                                            <input
-                                                name="form_type"
-                                                type="hidden"
-                                                defaultValue="recover_customer_password"
-                                            />
-                                            <input name="utf8" type="hidden" defaultValue="✓" />
-                                            <div className="clearfix large_form">
-                                                <label htmlFor="email" className="icon-field">
-                                                    <i className="icon-login icon-envelope " />
-                                                </label>
-                                                <input
-                                                    type="email"
-                                                    defaultValue=""
-                                                    size={30}
-                                                    name="email"
-                                                    placeholder="Email"
-                                                    id="recover-email"
-                                                    className="text"
-                                                />
-                                            </div>
-                                            <div className="clearfix action_account_custommer">
-                                                <div className="action_bottom button dark">
-                                                    <input className="btn" type="submit" defaultValue="Gửi" />
-                                                </div>
-                                                <div className="req_pass">
-                                                    <a
-                                                        href="#"
-                                                    >
-                                                        Hủy
-                                                    </a>
-                                                </div>
-                                            </div>
-                                            <input
-                                                id="bcb01b76d9f74155bc6a7f0ade547b79"
-                                                name="g-recaptcha-response"
-                                                type="hidden"
-                                            />
                                         </form>
                                     </div>
                                 </div>
@@ -146,6 +115,7 @@ function Login() {
                 </div>
             </main>
 
+            <ToastContainer />
         </>
     )
 }

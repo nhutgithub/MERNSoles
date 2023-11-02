@@ -17,6 +17,8 @@ const subcategoryController = require('../controllers/subCategoryController');
 router.get('/roles', roleController.getRoles);
 
 // Routes for 'users'
+router.post('/users', userController.addUser);
+router.post('/users/login', userController.login);
 router.get('/users', userController.getAllUsers);
 router.get('/users/:userId', userController.getUserById);
 router.put('/users/:userId', userController.editUser);
@@ -29,9 +31,6 @@ router.get('/categories', categoryController.getAllCategories);
 router.get('/colors', colorController.getAllColors);
 
 // Routes for 'imageProduct'
-router.post('/images', imageProductController.createImage);
-router.put('/images/:imageId', imageProductController.editImage);
-router.delete('/images/:imageId', imageProductController.deleteImage);
 router.get('/products/:productId/images', imageProductController.getImagesByProductId);
 
 // Routes for 'orders'
@@ -41,12 +40,10 @@ router.post('/orders', orderController.createOrder);
 router.put('/orders/:orderId', orderController.editOrder);
 router.delete('/orders/:orderId', orderController.deleteOrder);
 router.get('/users/:userId/orders', orderController.getOrdersByUserId);
+router.put('/orders/:orderId/:newStatus', orderController.changeStatusOrder);
 
 // Routes for 'orderItem'
 router.get('/orders/:orderId/items', orderItemController.getOrderItemsByOrderId);
-router.post('/items', orderItemController.createOrderItem);
-router.put('/items/:orderItemId', orderItemController.editOrderItem);
-router.delete('/items/:orderItemId', orderItemController.deleteOrderItem);
 
 // Routes for 'product'
 router.get('/products', productController.getAllProducts);
@@ -54,17 +51,19 @@ router.get('/products/:productId', productController.getProductById);
 router.post('/products', productController.createProduct);
 router.put('/products/:productId', productController.editProduct);
 router.delete('/products/:productId', productController.deleteProduct);
-router.get('/subcategories/:subcategoryId/products', productController.getProductsBySubcategory);
-router.get('/categories/:categoryId/products', productController.getProductsByCategory);
+router.get('/subcategories/:subcategoryName/products', productController.getProductsBySubcategory);
+router.get('/categories/:categoryName/products', productController.getProductsByCategory);
+router.get('/newest-products', productController.getNewestProducts);
+router.get('/search/:keyword', productController.search);
 
 // Routes for 'ProductSizeColor'
 router.get('/productsizecolors/:product_id', productSizeColorController.getProductSizeColorById);
-router.post('/productsizecolors', productSizeColorController.createProductSizeColor);
 
 // Routes for 'Size'
 router.get('/sizes', sizeController.getAllSizes);
 
 // Route for getting subcategories by category_id
+router.get('/subcategories', subcategoryController.getAllCategoriesWithSubcategories);
 router.get('/subcategories/:categoryId', subcategoryController.getSubcategoriesByCategory);
 
 module.exports = router;

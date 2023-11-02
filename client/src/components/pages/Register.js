@@ -1,13 +1,49 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import axios from 'axios';
+import API_URL from '../../config';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function Register() {
+    const [firstname, setFirstName] = useState('');
+    const [lastname, setLastName] = useState('');
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+    const [phone, setPhone] = useState('');
+    const [email, setEmail] = useState('');
+    const [address, setAddress] = useState('');
+
+    const handleRegister = async () => {
+        try {
+            const userData = {
+                firstname: firstname,
+                lastname: lastname,
+                phone: phone,
+                email: email,
+                address: address,
+                username: username,
+                password: password,
+                idRole: '',
+            };
+
+            axios.post(`${API_URL}/api/users`, userData).then((response) => {
+                if (response.status === 201) {
+                    window.location.href = '/login';
+                } else {
+                    toast(response.data.error);
+                }
+            });
+        } catch (error) {
+            toast('Lỗi đăng ký:', error);
+        }
+    }
+
     return (
         <>
             <main className="mainContent-theme ">
                 <div className="layout-account">
                     <div className="container">
-                        <div className="row">
+                        <div className="row" style={{marginTop: "50px"}}>
                             <div className="col-md-6 col-xs-12 wrapbox-heading-account">
                                 <div className="header-page clearfix">
                                     <h1>Tạo tài khoản</h1>
@@ -21,107 +57,75 @@ function Register() {
                                         id="create_customer"
                                         method="post"
                                     >
-                                        <input
-                                            name="form_type"
-                                            type="hidden"
-                                            defaultValue="create_customer"
-                                        />
-                                        <input name="utf8" type="hidden" defaultValue="✓" />
-                                        <div id="last_name" className="clearfix large_form">
-                                            <label htmlFor="last_name" className="label icon-field">
-                                                <i className="icon-login icon-user " />
-                                            </label>
+                                        <div className="clearfix large_form">
                                             <input
-                                                required=""
+                                                required
                                                 type="text"
-                                                defaultValue=""
-                                                name="customer[last_name]"
                                                 placeholder="Họ"
-                                                id="last_name"
+                                                value={firstname} onChange={e => setFirstName(e.target.value)}
                                                 className="text"
-                                                size={30}
                                             />
                                         </div>
-                                        <div id="first_name" className="clearfix large_form">
-                                            <label htmlFor="first_name" className="label icon-field">
-                                                <i className="icon-login icon-user " />
-                                            </label>
+                                        <div className="clearfix large_form">
                                             <input
-                                                required=""
+                                                required
                                                 type="text"
-                                                defaultValue=""
-                                                name="customer[first_name]"
+                                                value={lastname} onChange={e => setLastName(e.target.value)}
                                                 placeholder="Tên"
-                                                id="first_name"
                                                 className="text"
-                                                size={30}
                                             />
                                         </div>
-                                        <div id="gender" className="clearfix large_form">
+                                        <div className="clearfix large_form">
                                             <input
-                                                id="radio1"
-                                                type="radio"
-                                                defaultValue={0}
-                                                name="customer[gender]"
-                                            />
-                                            <label htmlFor="radio1">Nữ</label>
-                                            <input
-                                                id="radio2"
-                                                type="radio"
-                                                defaultValue={1}
-                                                name="customer[gender]"
-                                            />
-                                            <label htmlFor="radio2">Nam</label>
-                                        </div>
-                                        <div id="birthday" className="clearfix large_form">
-                                            <label htmlFor="birthday" className="label icon-field">
-                                                <i className="icon-login icon-envelope " />
-                                            </label>
-                                            <input
+                                                required
                                                 type="text"
-                                                defaultValue=""
-                                                placeholder="mm/dd/yyyy"
-                                                name="customer[birthday]"
-                                                id="birthday"
+                                                placeholder="Username"
+                                                value={username} onChange={e => setUsername(e.target.value)}
                                                 className="text"
-                                                size={30}
+                                            />
+                                        </div>
+                                        <div className="clearfix large_form">
+                                            <input
+                                                required
+                                                type="text"
+                                                placeholder="Số điện thoại"
+                                                value={phone} onChange={e => setPhone(e.target.value)}
+                                                className="text"
+                                            />
+                                        </div>
+                                        <div className="clearfix large_form">
+                                            <input
+                                                required
+                                                type="text"
+                                                placeholder="Địa chỉ"
+                                                value={address} onChange={e => setAddress(e.target.value)}
+                                                className="text"
                                             />
                                         </div>
                                         <div id="email" className="clearfix large_form">
-                                            <label htmlFor="email" className="label icon-field">
-                                                <i className="icon-login icon-envelope " />
-                                            </label>
                                             <input
-                                                required=""
+                                                required
                                                 type="email"
-                                                defaultValue=""
                                                 placeholder="Email"
-                                                name="customer[email]"
                                                 id="email"
                                                 className="text"
-                                                size={30}
                                                 autoComplete="current-email"
+                                                value={email} onChange={e => setEmail(e.target.value)}
                                             />
                                         </div>
                                         <div id="password" className="clearfix large_form">
-                                            <label htmlFor="password" className="label icon-field">
-                                                <i className="icon-login icon-shield " />
-                                            </label>
                                             <input
-                                                required=""
+                                                required
                                                 type="password"
-                                                defaultValue=""
                                                 placeholder="Mật khẩu"
-                                                name="customer[password]"
-                                                id="password"
                                                 className="password text"
-                                                size={30}
                                                 autoComplete="current-password"
+                                                value={password} onChange={e => setPassword(e.target.value)}
                                             />
                                         </div>
                                         <div className="clearfix action_account_custommer">
-                                            <div className="action_bottom button dark">
-                                                <input className="btn" type="submit" defaultValue="Đăng ký" />
+                                            <div className="action_bottom btn btn-outline-primary">
+                                                <input className="btn" onClick={handleRegister} defaultValue="Đăng ký" />
                                             </div>
                                         </div>
                                         <div className="clearfix req_pass">
@@ -129,21 +133,15 @@ function Register() {
                                                 <i className="fa fa-long-arrow-left" /> Quay lại trang chủ
                                             </a>
                                         </div>
-                                        <input
-                                            id="3295baf9e1564f628302447f3f0df3a3"
-                                            name="g-recaptcha-response"
-                                            type="hidden"
-                                        />
                                     </form>
                                 </div>
                             </div>
-                            {/* #register */}
-                            {/* #customer-register */}
                         </div>
                     </div>
                 </div>
             </main>
 
+            <ToastContainer />
         </>
     )
 }

@@ -2,12 +2,65 @@ const Product = require('../models/productModel');
 const ProductSizeColor = require('../models/productSizeColorModel');
 const Order = require('../models/orderModel');
 const OrderItem = require('../models/orderItemModel');
+const Subcategory = require('../models/subcategoryModel');
 const Image = require('../models/imageProductModel');
+const fs = require('fs');
+const path = require('path');
+
+const multer = require('multer');
+const Category = require('../models/categoryModel');
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'public/images/product');
+    },
+    filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, file.fieldname + '-' + uniqueSuffix + '-' + file.originalname);
+    },
+});
+
+const upload = multer({ storage: storage });
 
 // Lấy tất cả sản phẩm
 exports.getAllProducts = async (req, res) => {
     try {
-        const products = await Product.find();
+        const products = await Product.aggregate([
+            {
+                $lookup: {
+                    from: 'subcategories',
+                    localField: 'subcategory_id',
+                    foreignField: '_id',
+                    as: 'subcategory',
+                },
+            },
+            {
+                $unwind: '$subcategory',
+            },
+            {
+                $lookup: {
+                    from: 'categories',
+                    localField: 'subcategory.category_id',
+                    foreignField: '_id',
+                    as: 'category',
+                },
+            },
+            {
+                $unwind: '$category',
+            },
+            {
+                $project: {
+                    _id: '$_id',
+                    product_name: '$name',
+                    price: 1,
+                    description: 1,
+                    url_image1: '$url_image1',
+                    url_image2: '$url_image2',
+                    category_name: '$category.name',
+                    subcategory_name: '$subcategory.name',
+                },
+            },
+        ]);
         res.json(products);
     } catch (error) {
         res.status(500).json({ message: 'Lỗi khi lấy danh sách sản phẩm' });
@@ -21,7 +74,55 @@ exports.getProductById = async (req, res) => {
         if (!product) {
             return res.status(404).json({ message: 'Sản phẩm không tồn tại' });
         }
-        res.json(product);
+
+        // Sử dụng aggregate để nối thông tin sản phẩm, subcategory, và category
+        const productWithDetails = await Product.aggregate([
+            {
+                $match: { _id: product._id }
+            },
+            {
+                $lookup: {
+                    from: 'subcategories',
+                    localField: 'subcategory_id',
+                    foreignField: '_id',
+                    as: 'subcategory'
+                }
+            },
+            {
+                $unwind: '$subcategory'
+            },
+            {
+                $lookup: {
+                    from: 'categories',
+                    localField: 'subcategory.category_id',
+                    foreignField: '_id',
+                    as: 'category'
+                }
+            },
+            {
+                $unwind: '$category'
+            },
+            {
+                $project: {
+                    _id: '$_id',
+                    product_name: '$name',
+                    price: 1,
+                    description: 1,
+                    url_image1: '$url_image1',
+                    url_image2: '$url_image2',
+                    category_id: '$category._id',
+                    subcategory_id: '$subcategory._id',
+                    category_name: '$category.name',
+                    subcategory_name: '$subcategory.name',
+                }
+            }
+        ]);
+
+        if (productWithDetails.length > 0) {
+            res.json(productWithDetails[0]);
+        } else {
+            res.status(404).json({ message: 'Không thể tìm thấy thông tin sản phẩm' });
+        }
     } catch (error) {
         res.status(500).json({ message: 'Lỗi khi lấy thông tin sản phẩm' });
     }
@@ -30,43 +131,124 @@ exports.getProductById = async (req, res) => {
 // Tạo sản phẩm mới
 exports.createProduct = async (req, res) => {
     try {
-      // Bước 1: Tạo sản phẩm mới từ req.body
-      const newProduct = new Product(req.body);
-  
-      // Bước 2: Lưu sản phẩm mới vào cơ sở dữ liệu
-      await newProduct.save();
-  
-      // Bước 3: Tạo các bản ghi hình ảnh mới với ID của sản phẩm mới
-      const images = req.body.images; // Đây là danh sách hình ảnh truyền vào
-  
-      if (images && images.length > 0) {
-        const newImages = images.map((imageData) => {
-          return new Image({
-            product_id: newProduct._id, // Sử dụng ID của sản phẩm mới
-            url: imageData.url, // Thay thế "url" bằng tên trường thích hợp trong đối tượng image
-          });
+        upload.array('images', 5)(req, res, async (err) => {
+            if (err) {
+                // Xử lý lỗi nếu có
+                console.error('Lỗi' + err);
+                return res.status(500).json({ message: 'Lỗi khi xử lý tệp tải lên' });
+            }
+            const name = req.body.name;
+            const price = req.body.price;
+            const description = req.body.description;
+            const subcategory_id = req.body.subcategory_id;
+            const color_size = JSON.parse(req.body.color_size);
+            const imageUrls = req.files.map((file) => file.filename);
+
+            const url_image1 = `/images/product/${imageUrls[0]}`;
+            const url_image2 = `/images/product/${imageUrls[1]}`;
+
+            const newProduct = new Product({
+                name,
+                price,
+                description,
+                subcategory_id,
+                url_image1,
+                url_image2
+            });
+
+            const product = await newProduct.save();
+
+            for (const imageUrl of imageUrls) {
+                const imageProduct = new Image({
+                    product_id: product._id,
+                    image_url: `/images/product/${imageUrl}`,
+                });
+                await imageProduct.save();
+            }
+
+            for (const colorSize of color_size) {
+                const colorSizeProduct = new ProductSizeColor({
+                    product_id: product._id,
+                    size_id: colorSize.size,
+                    color_id: colorSize.color,
+                    quantity: colorSize.quantity,
+                });
+                await colorSizeProduct.save();
+            }
+            res.json({ message: 'Sản phẩm đã được tạo thành công' });
         });
-  
-        // Lưu các hình ảnh mới vào cơ sở dữ liệu
-        await Image.insertMany(newImages);
-      }
-  
-      res.json(newProduct);
+
     } catch (error) {
-      res.status(500).json({ message: 'Lỗi khi tạo sản phẩm' });
+        res.status(500).json({ message: 'Lỗi khi tạo sản phẩm' });
     }
-  };
-  
+};
+
 // Cập nhật sản phẩm theo ID
 exports.editProduct = async (req, res) => {
     try {
-        const updatedProduct = await Product.findByIdAndUpdate(req.params.productId, req.body, { new: true });
-        if (!updatedProduct) {
-            return res.status(404).json({ message: 'Sản phẩm không tồn tại' });
-        }
-        res.json(updatedProduct);
+        upload.array('images', 5)(req, res, async (err) => {
+            if (err) {
+                // Xử lý lỗi nếu có
+                console.error('Lỗi' + err);
+                return res.status(500).json({ message: 'Lỗi khi xử lý tệp tải lên' });
+            }
+            const productId = req.params.productId;
+            const name = req.body.name;
+            const price = req.body.price;
+            const description = req.body.description;
+            const subcategory_id = req.body.subcategory_id;
+            const color_size = JSON.parse(req.body.color_size);
+            const imageUrls = req.files.map((file) => file.filename);
+            const url_image1 = `/images/product/${imageUrls[0]}`;
+            const url_image2 = `/images/product/${imageUrls[1]}`;
+
+            // Cập nhật thông tin sản phẩm
+            await Product.findByIdAndUpdate(productId, {
+                name,
+                price,
+                description,
+                subcategory_id,
+                url_image1,
+                url_image2
+            });
+
+            const imageUrlsToDelete = await Image.find({ product_id: productId });
+
+            // Xóa tệp ảnh từ thư mục public/images/product
+            imageUrlsToDelete.forEach((imageUrl) => {
+                const imagePath = path.join(__dirname, '..', 'public', imageUrl.image_url);
+                fs.unlinkSync(imagePath);
+            });
+            // Xóa hình ảnh cũ của sản phẩm
+            await Image.deleteMany({ product_id: productId });
+
+            // Thêm hình ảnh mới của sản phẩm
+            for (const imageUrl of imageUrls) {
+                const imageProduct = new Image({
+                    product_id: productId,
+                    image_url: `/images/product/${imageUrl}`,
+                });
+                await imageProduct.save();
+            }
+
+            // Xóa thông tin màu sắc và kích thước cũ của sản phẩm
+            await ProductSizeColor.deleteMany({ product_id: productId });
+
+            // Thêm thông tin màu sắc và kích thước mới của sản phẩm
+            for (const colorSize of color_size) {
+                const colorSizeProduct = new ProductSizeColor({
+                    product_id: productId,
+                    size_id: colorSize.size,
+                    color_id: colorSize.color,
+                    quantity: colorSize.quantity,
+                });
+                await colorSizeProduct.save();
+            }
+
+            res.json({ message: 'Sản phẩm đã được chỉnh sửa thành công' });
+        });
     } catch (error) {
-        res.status(500).json({ message: 'Lỗi khi cập nhật sản phẩm' });
+        res.status(500).json({ message: 'Lỗi khi chỉnh sửa sản phẩm' });
     }
 };
 
@@ -77,17 +259,24 @@ exports.deleteProduct = async (req, res) => {
 
         // Bước 1: Lấy danh sách hình ảnh, đơn hàng và mục đơn hàng liên quan đến sản phẩm dựa trên product_id
         const orderItems = await OrderItem.find({ product_id: productId });
-        const orders = await Order.find({ _id: { $in: orderItems.map(orderItem => orderItem.order_id) }});
+        const orders = await Order.find({ _id: { $in: orderItems.map(orderItem => orderItem.order_id) } });
 
         // Bước 2: Xóa tất cả các mục đơn hàng (order items) liên quan đến sản phẩm
         await OrderItem.deleteMany({ product_id: productId });
 
         // Bước 3: Xóa tất cả đơn hàng (orders) liên quan đến sản phẩm
-        await Order.deleteMany({ _id: { $in: orders.map(order => order._id) }});
+        await Order.deleteMany({ _id: { $in: orders.map(order => order._id) } });
 
         // Bước 4: Xóa tất cả hình ảnh liên quan đến sản phẩm
+        const imageUrlsToDelete = await Image.find({ product_id: productId });
+
+        // Xóa tệp ảnh từ thư mục public/images/product
+        imageUrlsToDelete.forEach((imageUrl) => {
+            const imagePath = path.join(__dirname, '..', 'public', imageUrl.image_url);
+            fs.unlinkSync(imagePath);
+        });
         await Image.deleteMany({ product_id: productId });
-        
+
         await ProductSizeColor.deleteMany({ product_id: productId });
 
         // Bước 5: Xóa sản phẩm
@@ -105,10 +294,15 @@ exports.deleteProduct = async (req, res) => {
 // Lấy tất cả sản phẩm theo subcategory_id
 exports.getProductsBySubcategory = async (req, res) => {
     try {
-        const subcategoryId = req.params.subcategoryId;
+        const subcategoryName = req.params.subcategoryName;
+        const subcategory = await Subcategory.findOne({ name: subcategoryName });
 
-        // Lấy tất cả sản phẩm của subcategory dựa trên subcategory_id
-        const products = await Product.find({ subcategory_id: subcategoryId });
+        if (!subcategory) {
+            return res.status(404).json({ message: 'Danh mục con không tồn tại' });
+        }
+        const products = await Product.find({
+            subcategory_id: subcategory._id   
+        });
         res.json(products);
     } catch (error) {
         res.status(500).json({ message: 'Lỗi khi lấy danh sách sản phẩm theo subcategory_id' });
@@ -118,11 +312,17 @@ exports.getProductsBySubcategory = async (req, res) => {
 // Lấy tất cả sản phẩm theo category_id
 exports.getProductsByCategory = async (req, res) => {
     try {
-        const categoryId = req.params.categoryId;
+        const categoryName = req.params.categoryName;
+        const category = await Category.findOne({ name: categoryName });
+
+        if (!category) {
+            return res.status(404).json({ message: 'Danh mục con không tồn tại' });
+        }
 
         // Lấy tất cả subcategory_id thuộc category_id
-        const subcategories = await Subcategory.find({ category_id: categoryId });
-        const subcategoryIds = subcategories.map((subcategory) => subcategory.subcategory_id);
+        const subcategories = await Subcategory.find({ category_id: category._id });
+
+        const subcategoryIds = subcategories.map((subcategory) => subcategory._id);
 
         // Lấy tất cả sản phẩm thuộc các subcategory_id đã tìm được
         const products = await Product.find({ subcategory_id: { $in: subcategoryIds } });
@@ -132,3 +332,30 @@ exports.getProductsByCategory = async (req, res) => {
         res.status(500).json({ message: 'Lỗi khi lấy danh sách sản phẩm theo category_id' });
     }
 };
+
+exports.getNewestProducts = async (req, res) => {
+    try {
+        const newestProducts = await Product
+            .find()
+            .sort({ _id: -1 })
+            .limit(8);
+
+        res.json(newestProducts);
+    } catch (error) {
+        res.status(500).json({ message: 'Lỗi khi lấy sản phẩm mới nhất' });
+    }
+};
+
+exports.search = async (req, res) => {
+    const keyword = req.params.keyword;
+
+    try {
+        const results = await Product.find({
+            name: { $regex: new RegExp(keyword, 'i') }
+        });
+
+        res.json(results);
+    } catch (error) {
+        res.status(500).json({ message: 'Lỗi khi tìm kiếm sản phẩm' });
+    }
+}
