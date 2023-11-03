@@ -296,13 +296,32 @@ exports.getProductsBySubcategory = async (req, res) => {
     try {
         const subcategoryName = req.params.subcategoryName;
         const subcategory = await Subcategory.findOne({ name: subcategoryName });
+        const orderBy = req.params.orderby;
 
+        let sortOptions = {};
+
+        if (orderBy === 'manual') {
+            sortOptions = { _id: -1 };
+        } else if (orderBy === 'price-ascending') {
+            sortOptions = { price: 1 };
+        } else if (orderBy === 'price-descending') {
+            sortOptions = { price: -1 };
+        } else if (orderBy === 'title-ascending') {
+            sortOptions = { name: 1 };
+        } else if (orderBy === 'title-descending') {
+            sortOptions = { name: -1 };
+        }
+        const category = await Category.findOne({ name: categoryName });
+
+        if (!category) {
+            return res.status(404).json({ message: 'Danh mục con không tồn tại' });
+        }
         if (!subcategory) {
             return res.status(404).json({ message: 'Danh mục con không tồn tại' });
         }
         const products = await Product.find({
-            subcategory_id: subcategory._id   
-        });
+            subcategory_id: subcategory._id
+        }).sort(sortOptions);
         res.json(products);
     } catch (error) {
         res.status(500).json({ message: 'Lỗi khi lấy danh sách sản phẩm theo subcategory_id' });
@@ -313,6 +332,21 @@ exports.getProductsBySubcategory = async (req, res) => {
 exports.getProductsByCategory = async (req, res) => {
     try {
         const categoryName = req.params.categoryName;
+        const orderBy = req.params.orderby;
+
+        let sortOptions = {};
+
+        if (orderBy === 'manual') {
+            sortOptions = { _id: -1 };
+        } else if (orderBy === 'price-ascending') {
+            sortOptions = { price: 1 };
+        } else if (orderBy === 'price-descending') {
+            sortOptions = { price: -1 };
+        } else if (orderBy === 'title-ascending') {
+            sortOptions = { name: 1 };
+        } else if (orderBy === 'title-descending') {
+            sortOptions = { name: -1 };
+        }
         const category = await Category.findOne({ name: categoryName });
 
         if (!category) {
@@ -325,7 +359,7 @@ exports.getProductsByCategory = async (req, res) => {
         const subcategoryIds = subcategories.map((subcategory) => subcategory._id);
 
         // Lấy tất cả sản phẩm thuộc các subcategory_id đã tìm được
-        const products = await Product.find({ subcategory_id: { $in: subcategoryIds } });
+        const products = await Product.find({ subcategory_id: { $in: subcategoryIds } }).sort(sortOptions);
 
         res.json(products);
     } catch (error) {

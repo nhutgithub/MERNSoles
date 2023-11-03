@@ -51,8 +51,8 @@ router.get('/products/:productId', productController.getProductById);
 router.post('/products', productController.createProduct);
 router.put('/products/:productId', productController.editProduct);
 router.delete('/products/:productId', productController.deleteProduct);
-router.get('/subcategories/:subcategoryName/products', productController.getProductsBySubcategory);
-router.get('/categories/:categoryName/products', productController.getProductsByCategory);
+router.get('/subcategories/:subcategoryName/:orderby/products', productController.getProductsBySubcategory);
+router.get('/categories/:categoryName/:orderby/products', productController.getProductsByCategory);
 router.get('/newest-products', productController.getNewestProducts);
 router.get('/search/:keyword', productController.search);
 

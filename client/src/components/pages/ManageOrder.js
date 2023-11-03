@@ -12,8 +12,8 @@ import Button from 'react-bootstrap/Button';
 
 function ManageOrder() {
     const isLoggedIn = localStorage.getItem('isLoggedIn');
-    const role = 'Admin';
-    if (!isLoggedIn && role !== "Admin") {
+    const role = localStorage.getItem('role');
+    if (!isLoggedIn && role !== "admin") {
         window.location.href = '/';
     }
     const [show, setShow] = useState(false);
@@ -206,7 +206,7 @@ function ManageOrder() {
     return (
         <>
             <div className="container-fluid mt-5 mb-5">
-                {role === "Admin" ?
+                {role === "admin" ?
                     <>
                         <div className="row justify-content-center">
                             <div className="col-md-10">

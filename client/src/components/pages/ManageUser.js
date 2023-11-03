@@ -10,8 +10,8 @@ import 'react-confirm-alert/src/react-confirm-alert.css';
 
 function ManageUser() {
     const isLoggedIn = localStorage.getItem('isLoggedIn');
-    const role1 = 'Admin';
-    if (!isLoggedIn && role1 !== "Admin") {
+    const role1 = localStorage.getItem('role');
+    if (!isLoggedIn && role1 !== "admin") {
         window.location.href = '/';
     }
     const [role, setRole] = useState('');
@@ -51,7 +51,7 @@ function ManageUser() {
                 if (response.status === 200) {
                     setVisible(true);
                     setTimeout(() => {
-                        const { firstname, lastname, address, phone, email, username, password } = response.data.user;
+                        const { firstname, lastname, address, phone, email, username } = response.data.user;
                         firstNameRef.current.value = firstname;
                         lastNameRef.current.value = lastname;
                         addressRef.current.value = address;
@@ -226,7 +226,7 @@ function ManageUser() {
     return (
         <>
             <div className="container-fluid mt-5 mb-5">
-                {role1 === "Admin" ?
+                {role1 === "admin" ?
                     <>
                         <div className="row justify-content-center">
                             <div className="col-md-10">

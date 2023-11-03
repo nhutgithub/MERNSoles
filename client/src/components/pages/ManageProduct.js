@@ -11,8 +11,8 @@ import { v4 as uuidv4 } from 'uuid';
 
 function ManageProduct() {
     const isLoggedIn = localStorage.getItem('isLoggedIn');
-    const role = 'Admin';
-    if (!isLoggedIn && role !== "Admin") {
+    const role = localStorage.getItem('role');
+    if (!isLoggedIn && role !== "admin") {
         window.location.href = '/';
     }
     const [isVisible, setVisible] = useState(false);
@@ -326,7 +326,7 @@ function ManageProduct() {
     return (
         <>
             <div className="container-fluid mt-5 mb-5">
-                {role === "Admin" ?
+                {role === "admin" ?
                     <>
                         <div className="row justify-content-center">
                             <div className="col-md-10">

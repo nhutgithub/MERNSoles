@@ -31,30 +31,7 @@ function Header() {
                 setItem(list);
             })
             .catch(() => {
-              });
-    }, []);
-
-    const handleOnSearch = (string) => {
-        if (string == searchText) {
-            window.location.href = `/search/${string}`;
-        }
-        else {
-            setSearchText(string);
-        }
-    }
-
-    const handleOnSelect = (item) => {
-        window.location.href = `/detail/${item.id}`;
-    }
-
-    const formatResult = (item) => {
-        return (
-            <>
-                <a href={'/detail/'+item.id} style={{ display: 'block', textAlign: 'left', color: "black" }}>{item.name}</a>
-            </>
-        )
-    }
-    useEffect(() => {
+            });
         axios.get(`${API_URL}/api/subcategories`)
             .then(response => setCategories(response.data))
             .catch(() => {
@@ -75,6 +52,27 @@ function Header() {
         });
     }, []);
 
+    const handleOnSearch = (string) => {
+        if (string == searchText) {
+            window.location.href = `/search/${string}`;
+        }
+        else {
+            setSearchText(string);
+        }
+    }
+
+    const handleOnSelect = (item) => {
+        window.location.href = `/detail/${item.id}`;
+    }
+
+    const formatResult = (item) => {
+        return (
+            <>
+                <a href={'/detail/' + item.id} style={{ display: 'block', textAlign: 'left', color: "black" }}>{item.name}</a>
+            </>
+        )
+    }
+
     const handleLogout = () => {
         localStorage.removeItem('username');
         localStorage.removeItem('firstname');
@@ -93,15 +91,15 @@ function Header() {
                 <div className="container">
                     <div id="slideText">
                         <p>
-                            <a style={{cursor: 'pointer', color: 'white'}}>
+                            <a style={{ cursor: 'pointer', color: 'white' }}>
                                 Free ship Toàn Quốc với đơn hàng &gt; 500K
                             </a>
                         </p>
                         <p>
-                            <a style={{cursor: 'pointer', color: 'white'}}>Đổi sản phẩm trong 7 ngày </a>
+                            <a style={{ cursor: 'pointer', color: 'white' }}>Đổi sản phẩm trong 7 ngày </a>
                         </p>
                         <p>
-                            <a style={{cursor: 'pointer', color: 'white'}}>Sản phẩm được bảo hành </a>
+                            <a style={{ cursor: 'pointer', color: 'white' }}>Sản phẩm được bảo hành </a>
                         </p>
                         <p>
                             <a href="">
