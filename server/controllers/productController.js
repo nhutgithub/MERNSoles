@@ -311,9 +311,8 @@ exports.getProductsBySubcategory = async (req, res) => {
         } else if (orderBy === 'title-descending') {
             sortOptions = { name: -1 };
         }
-        const category = await Category.findOne({ name: categoryName });
-
-        if (!category) {
+        
+        if (!subcategory) {
             return res.status(404).json({ message: 'Danh mục con không tồn tại' });
         }
         if (!subcategory) {
