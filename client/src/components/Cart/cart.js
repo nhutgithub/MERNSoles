@@ -33,11 +33,7 @@ const Cart = () => {
 
     // -----Increment Event------
     const increaseQuantity = (i, id) => {
-
-        const storedCount = localStorage.getItem('count');
-
-        localStorage.setItem('count', parseInt(storedCount, 10) + 1);
-        updateToCart();
+        var flag = false;
 
         SetProducts((preValue) =>
             preValue.map((data, o) => {
@@ -48,20 +44,34 @@ const Cart = () => {
                     const itemIndex = storedData.findIndex(item => item.id == id);
 
                     if (itemIndex !== -1) {
-
-                        storedData[itemIndex].qty = data.qty + 1;
-
-                        localStorage.setItem('cart', JSON.stringify(storedData));
+                        if (data.qty + 1 <= storedData[itemIndex].remainingQuantity) {
+                            storedData[itemIndex].qty = data.qty + 1;
+                            localStorage.setItem('cart', JSON.stringify(storedData));
+                            flag = true;
+                            return {
+                                ...data,
+                                qty: data.qty + 1
+                            };
+                        }
+                        else {
+                            toast('Số lượng sản phẩm trong kho không đủ');
+                            return {
+                                ...data,
+                                qty: data.qty
+                            };
+                        }
                     }
-
-                    return {
-                        ...data,
-                        qty: data.qty + 1
-                    };
                 }
                 return data;
             })
         );
+        if (flag) {
+
+            const storedCount = localStorage.getItem('count');
+
+            localStorage.setItem('count', parseInt(storedCount, 10) + 1);
+            updateToCart();
+        }
     };
 
     // -----Decrement Event------
@@ -178,7 +188,7 @@ const Cart = () => {
         productData.forEach((item) => {
             const sizeText = item.size;
             const colorMatch = sizeText.match(/Màu: (\S+)/);
-            const sizeMatch = sizeText.match(/Kích thước: (\d+)/);
+            const sizeMatch = sizeText.match(/Kích thước: (\S+)/);
 
             const color = colorMatch[1];
             const size = sizeMatch[1];

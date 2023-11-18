@@ -117,7 +117,7 @@ function ManageOrder() {
             });
     }
 
-    const changeStatus = (e, id) => {
+    const changeStatus = (e, id, originalStatus) => {
         confirmAlert({
             title: "Xác nhận",
             message: "Bạn muốn thay đổi trạng thái đơn hàng?",
@@ -136,7 +136,10 @@ function ManageOrder() {
                     }
                 },
                 {
-                    label: 'Hủy'
+                    label: 'Hủy',
+                    onClick: () => {
+                        e.target.value = originalStatus;
+                    }
                 }
             ],
             closeOnEscape: true,
@@ -249,7 +252,7 @@ function ManageOrder() {
                                                                 <td>{formatDate(order.order_date)}</td>
                                                                 <td>{order.note}</td>
                                                                 <td>
-                                                                    <select className="form-control" onChange={(e) => changeStatus(e, order._id)}>
+                                                                    <select className="form-control" onChange={(e) => changeStatus(e, order._id, order.status)}>
                                                                         <option value="Chờ xác nhận" selected={order.status === 'Chờ xác nhận'}>Chờ xác nhận</option>
                                                                         <option value="Đã xác nhận" selected={order.status === 'Đã xác nhận'}>Đã xác nhận</option>
                                                                         <option value="Đang giao hàng" selected={order.status === 'Đang giao hàng'}>Đang giao hàng</option>
