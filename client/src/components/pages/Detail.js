@@ -84,7 +84,13 @@ function Detail() {
 
         const existingItem = cart.find(item => item.name === newData.name && item.size === newData.size);
         if (existingItem) {
-            existingItem.qty = parseInt(existingItem.qty) + parseInt(newData.qty);
+            var n = parseInt(existingItem.qty) + parseInt(newData.qty);
+            if (n <= existingItem.remainingQuantity) {
+                existingItem.qty = n;
+            } else {
+                toast('Số lượng sản phẩm trong kho không đủ');
+                return;
+            }
         } else {
             cart.push(newData);
         }
