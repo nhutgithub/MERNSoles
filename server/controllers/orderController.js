@@ -129,15 +129,73 @@ exports.changeStatusOrder = async (req, res) => {
   try {
     const orderId = req.params.orderId;
     const newStatus = req.params.newStatus;
-    const updatedOrder = await Order.findOneAndUpdate({ _id: orderId },
-      { status: newStatus },
-      { new: true });
+
+    // Tìm và cập nhật trạng thái của đơn hàng
+    const updatedOrder = await Order.findOne(
+      { _id: orderId }
+    );
+
     if (!updatedOrder) {
       return res.status(404).json({ message: 'Đơn hàng không tồn tại' });
     }
 
-    return res.status(200).json({ message: `Đơn đặt hàng #${orderId} đã được cập nhật thành trạng thái "${newStatus}"` });
+    // Nếu trạng thái mới là "Hủy đơn", thực hiện tăng số lượng sản phẩm trong orderdetail
+    if (newStatus === "Hủy đơn") {
+      // Lấy danh sách orderdetail của đơn hàng
+      const orderDetails = await OrderItem.find({ order_id: orderId });
+
+      // Duyệt qua từng orderdetail và tăng số lượng sản phẩm
+      for (const orderDetail of orderDetails) {
+        const color = await Color.findOne({ color_name: orderDetail.color });
+        const size = await Size.findOne({ size_name: orderDetail.size });
+        await ProductSizeColor.findOneAndUpdate(
+          {
+            product_id: orderDetail.product_id,
+            color_id: color._id,
+            size_id: size._id,
+          },
+          {
+            $inc: { quantity: +orderDetail.quantity },
+          },
+          { new: true }
+        );
+      }
+    }
+    if (updatedOrder.status === "Hủy đơn" && newStatus !== "Hủy đơn") {
+      // Lấy danh sách orderdetail của đơn hàng
+      const orderDetails = await OrderItem.find({ order_id: orderId });
+
+      // Duyệt qua từng orderdetail và giảm số lượng sản phẩm
+      for (const orderDetail of orderDetails) {
+        const color = await Color.findOne({ color_name: orderDetail.color });
+        const size = await Size.findOne({ size_name: orderDetail.size });
+        await ProductSizeColor.findOneAndUpdate(
+          {
+            product_id: orderDetail.product_id,
+            color_id: color._id,
+            size_id: size._id,
+          },
+          {
+            $inc: { quantity: -orderDetail.quantity },
+          },
+          { new: true }
+        );
+      }
+    }
+    // Tìm và cập nhật trạng thái của đơn hàng
+    await Order.findOneAndUpdate(
+      { _id: orderId },
+      { status: newStatus },
+      { new: true }
+    );
+
+    return res.status(200).json({
+      message: `Đơn đặt hàng #${orderId} đã được cập nhật thành trạng thái "${newStatus}"`,
+    });
   } catch (error) {
-    return res.status(500).json({ message: 'Lỗi khi thay đổi trạng thái đơn đặt hàng', error: error.message });
+    return res.status(500).json({
+      message: 'Lỗi khi thay đổi trạng thái đơn đặt hàng',
+      error: error.message,
+    });
   }
-}
+};

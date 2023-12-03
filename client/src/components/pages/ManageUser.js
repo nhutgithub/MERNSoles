@@ -140,6 +140,10 @@ function ManageUser() {
             return;
         }
 
+        if (password.length < 8) {
+            toast('Vui lòng nhập mật khẩu ít nhất 8 kí tự');
+            return;
+        }
         const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
         if (!email.match(emailPattern)) {
             toast('Email không hợp lệ');

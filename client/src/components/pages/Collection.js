@@ -112,7 +112,6 @@ function Collection() {
                                         >
                                             <span
                                                 itemProp="item"
-                                                content="https://kenta.vn/collections/ao-khoac-ni"
                                             >
                                                 <span itemProp="name">{name}</span>
                                             </span>

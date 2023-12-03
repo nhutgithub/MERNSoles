@@ -6,6 +6,11 @@ const bcrypt = require('bcrypt');
 exports.addUser = async (req, res) => {
   try {
     const { firstname, lastname, username, password, phone, email, address, idRole } = req.body;
+    const existingUser = await User.findOne({ username });
+
+    if (existingUser) {
+      return res.status(401).json({ message: 'Người dùng đã tồn tại!' });
+    }
     let userRole = idRole;
 
     if (!idRole) {
@@ -71,6 +76,11 @@ exports.getUserById = async (req, res) => {
 exports.editUser = async (req, res) => {
   try {
     const { firstname, lastname, username, password, phone, email, address, idRole } = req.body;
+    const existingUser = await User.findOne({ username });
+
+    if (existingUser) {
+      return res.status(401).json({ message: 'Người dùng đã tồn tại!' });
+    }
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 

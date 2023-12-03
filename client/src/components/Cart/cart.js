@@ -33,12 +33,15 @@ const Cart = () => {
 
     // -----Increment Event------
     const increaseQuantity = (i, id) => {
-        var flag = false;
+        const storedCount = localStorage.getItem('count');
 
+        localStorage.setItem('count', parseInt(storedCount, 10) + 1);
+        updateToCart();
+        var n = 0;
         SetProducts((preValue) =>
             preValue.map((data, o) => {
                 if (i === o) {
-
+                    n++;
                     const storedData = JSON.parse(localStorage.getItem('cart')) || [];
 
                     const itemIndex = storedData.findIndex(item => item.id == id);
@@ -47,14 +50,19 @@ const Cart = () => {
                         if (data.qty + 1 <= storedData[itemIndex].remainingQuantity) {
                             storedData[itemIndex].qty = data.qty + 1;
                             localStorage.setItem('cart', JSON.stringify(storedData));
-                            flag = true;
                             return {
                                 ...data,
                                 qty: data.qty + 1
                             };
                         }
                         else {
-                            toast('Số lượng sản phẩm trong kho không đủ');
+                            if (n == 1) {
+                                toast('Số lượng sản phẩm trong kho không đủ');
+                                const storedCount = localStorage.getItem('count');
+
+                                localStorage.setItem('count', parseInt(storedCount, 10) - 1);
+                                updateToCart();
+                            }
                             return {
                                 ...data,
                                 qty: data.qty
@@ -65,13 +73,6 @@ const Cart = () => {
                 return data;
             })
         );
-        if (flag) {
-
-            const storedCount = localStorage.getItem('count');
-
-            localStorage.setItem('count', parseInt(storedCount, 10) + 1);
-            updateToCart();
-        }
     };
 
     // -----Decrement Event------
