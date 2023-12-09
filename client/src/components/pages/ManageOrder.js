@@ -257,6 +257,7 @@ function ManageOrder() {
                                                                         <option value="Đã xác nhận" selected={order.status === 'Đã xác nhận'}>Đã xác nhận</option>
                                                                         <option value="Đang giao hàng" selected={order.status === 'Đang giao hàng'}>Đang giao hàng</option>
                                                                         <option value="Đã giao hàng" selected={order.status === 'Đã giao hàng'}>Đã giao hàng</option>
+                                                                        <option value="Đã thanh toán" selected={order.status === 'Đã thanh toán'}>Đã thanh toán</option>
                                                                         <option value="Hủy đơn" selected={order.status === 'Hủy đơn'}>Hủy đơn</option>
                                                                     </select>
                                                                 </td>

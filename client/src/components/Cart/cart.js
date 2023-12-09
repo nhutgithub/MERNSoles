@@ -178,7 +178,7 @@ const Cart = () => {
         return "";
     }
 
-    const checkout = () => {
+    const checkout = (status) => {
         const isLoggedIn = localStorage.getItem('isLoggedIn');
         if (!isLoggedIn) {
             toast("Vui lòng đăng nhập trước khi đặt hàng");
@@ -200,7 +200,7 @@ const Cart = () => {
                 color: item.price,
                 color: color,
                 size: size,
-                quantity: item.qty
+                quantity: item.qty,
             };
 
             dataOrderDetail.push(newData);
@@ -215,7 +215,7 @@ const Cart = () => {
             address: addressRef.current.value,
             order_date: currentTime,
             total_price: cartTotalAmount,
-            status: 'Chờ xác nhận',
+            status: status,
             note: noteRef.current.value,
             order_items: dataOrderDetail
         };
@@ -278,7 +278,7 @@ const Cart = () => {
 
     useEffect(() => {
         if (success) {
-            checkout();
+            checkout('Đã thanh toán');
         }
     }, [success]);
 
@@ -376,7 +376,7 @@ const Cart = () => {
                                                                 <textarea className="form-control" ref={noteRef} />
                                                             </div>
                                                             <div className="form-group">
-                                                                <button className="btn btn-success" onClick={checkout}>Đặt hàng</button>
+                                                                <button className="btn btn-success" onClick={()=>checkout('Chờ xác nhận')}>Đặt hàng</button>
                                                             </div>
 
                                                             <div className="form-group">
