@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import API_URL from '../../config';
+import {API_URL} from '../../config';
 import axios from 'axios';
 import { ReactSearchAutocomplete } from 'react-search-autocomplete'
 import { useCart } from '../Cart/CartContext';

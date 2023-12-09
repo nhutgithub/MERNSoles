@@ -23,6 +23,9 @@ router.get('/users', userController.getAllUsers);
 router.get('/users/:userId', userController.getUserById);
 router.put('/users/:userId', userController.editUser);
 router.delete('/users/:userId', userController.deleteUser);
+router.get('/users/check_username/:username', userController.checkUserName);
+router.put('/users/update_password/reset', userController.updatePassword);
+router.post('/users/send_email', userController.sendEmail);
 
 // Routes for 'categories'
 router.get('/categories', categoryController.getAllCategories);

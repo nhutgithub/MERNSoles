@@ -1,6 +1,7 @@
 const User = require('../models/userModel');
 const Role = require('../models/roleModel');
 const bcrypt = require('bcrypt');
+const nodemailer = require('nodemailer');
 
 // Thêm mới người dùng
 exports.addUser = async (req, res) => {
@@ -145,4 +146,71 @@ exports.login = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: 'Lỗi khi lấy thông tin người dùng' });
   }
+};
+
+// verify the Username exist
+exports.checkUserName = async (req, res) => {
+  const username = req.params.username;
+  try {
+    const user = await User.findOne({ username: username });
+    if (user) {
+      res.status(200).send({ email: user.email });
+    } else {
+      res.status(404).send({ message: 'Username does not exist in the database' + username });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ message: 'An error occurred while checking the Username' });
+  }
+};
+
+exports.updatePassword = async (req, res) => {
+  const { username, newPassword } = req.body;
+
+  try {
+    const user = await User.findOne({ username: username });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+    user.password = hashedPassword;
+    await user.save();
+
+    res.status(200).json({ message: 'Password updated successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'An error occurred while updating the password' });
+  }
+};
+
+
+exports.sendEmail = (req, res) => {
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    secure: true,
+    auth: {
+      user: 'thangcao1906@gmail.com',
+      pass: 'uhlydqasvvkklfth',
+    },
+  });
+  const { recipient_email, OTP } = req.body;
+  const mailOptions = {
+    from: 'thangcao1906@gmail.com',
+    to: recipient_email,
+    subject: 'PASSWORD RESET',
+    html: `<html>
+             <body>
+               <h2>Password Recovery</h2>
+               <p>Use this OTP to reset your password. OTP is valid for 1 minute</p>
+               <h3>${OTP}</h3>
+             </body>
+           </html>`,
+  };
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      res.status(500).send({ message: "An error occurred while sending the email" + error });
+    } else {
+      res.status(200).send({ message: "Email sent successfully" });
+    }
+  });
 };
