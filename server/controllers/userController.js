@@ -1,5 +1,7 @@
 const User = require('../models/userModel');
 const Role = require('../models/roleModel');
+const Order = require('../models/orderModel');
+const OrderItem = require('../models/orderItemModel');
 const bcrypt = require('bcrypt');
 const nodemailer = require('nodemailer');
 
@@ -110,10 +112,18 @@ exports.editUser = async (req, res) => {
 // Xóa người dùng bằng ID
 exports.deleteUser = async (req, res) => {
   try {
-    const user = await User.findByIdAndDelete(req.params.userId);
+    const userId = req.params.userId;
+    const user = await User.findByIdAndDelete(userId);
     if (!user) {
       return res.status(404).json({ message: 'Người dùng không tồn tại' });
     }
+    const orders = await Order.find({ user_id: userId });
+    await Promise.all(
+      orders.map(async (order) => {
+        await OrderItem.deleteMany({ order_id: order._id });
+        await Order.findByIdAndDelete(order._id);
+      })
+    );
     res.json({ message: 'Người dùng đã bị xóa' });
   } catch (error) {
     res.status(500).json({ message: 'Lỗi khi xóa người dùng' });
