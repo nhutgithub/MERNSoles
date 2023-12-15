@@ -64,7 +64,7 @@ function Detail() {
         });
         const sizeText = sizeRef.current.value;
         const colorMatch = sizeText.match(/Màu: (\S+)/);
-        const sizeMatch = sizeText.match(/Kích thước: (\d+)/);
+        const sizeMatch = sizeText.match(/Kích thước: (\S+)/);
 
         const color = colorMatch[1];
         const size = sizeMatch[1];
