@@ -10,9 +10,13 @@ exports.addUser = async (req, res) => {
   try {
     const { firstname, lastname, username, password, phone, email, address, idRole } = req.body;
     const existingUser = await User.findOne({ username });
+    const existingUser1 = await User.findOne({ email });
 
     if (existingUser) {
       return res.status(401).json({ message: 'Người dùng đã tồn tại!' });
+    }
+    if (existingUser1) {
+      return res.status(401).json({ message: 'Email đã tồn tại!' });
     }
     let userRole = idRole;
 
@@ -78,12 +82,23 @@ exports.getUserById = async (req, res) => {
 // Cập nhật thông tin người dùng bằng ID
 exports.editUser = async (req, res) => {
   try {
-    const { firstname, lastname, username, password, phone, email, address, idRole } = req.body;
-    const existingUser = await User.findOne({ username });
+    const { firstname, lastname, username, password, phone, email, address, idRole, flgEmail, flgUserName } = req.body;
+    if (flgEmail) {
+      const existingUser = await User.findOne({ email });
 
-    if (existingUser) {
-      return res.status(401).json({ message: 'Người dùng đã tồn tại!' });
+      if (existingUser) {
+        return res.status(401).json({ message: 'Email đã tồn tại!' });
+      }
     }
+
+    if (flgUserName) {
+      const existingUser = await User.findOne({ username });
+
+      if (existingUser) {
+        return res.status(401).json({ message: 'Người dùng đã tồn tại!' });
+      }
+    }
+
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
@@ -192,7 +207,6 @@ exports.updatePassword = async (req, res) => {
     res.status(500).json({ message: 'An error occurred while updating the password' });
   }
 };
-
 
 exports.sendEmail = (req, res) => {
   const transporter = nodemailer.createTransport({
