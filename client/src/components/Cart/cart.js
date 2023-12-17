@@ -193,7 +193,11 @@ const Cart = () => {
             const sizeMatch = sizeText.match(/Kích thước: (\S+)/);
 
             const color = colorMatch[1];
-            const size = sizeMatch[1];
+            var size = sizeMatch[1];
+
+            if (size === "NO") {
+                size = "NO SIZE";
+            }
 
             const newData = {
                 product_id: item.product_id,
@@ -376,7 +380,7 @@ const Cart = () => {
                                                                 <textarea className="form-control" ref={noteRef} />
                                                             </div>
                                                             <div className="form-group">
-                                                                <button className="btn btn-success" onClick={()=>checkout('Chờ xác nhận')}>Đặt hàng</button>
+                                                                <button className="btn btn-success" onClick={() => checkout('Chờ xác nhận')}>Đặt hàng</button>
                                                             </div>
 
                                                             <div className="form-group">

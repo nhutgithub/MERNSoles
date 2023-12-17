@@ -167,8 +167,8 @@ function Collection() {
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div className="row filter-here">
-                                                <div className="content-product-list product-list filter clearfix">
+                                            <div className="">
+                                                <div className="content-product-list product-list filter clearfix row">
                                                     {
                                                         getData(current, size).map((data, index) => {
                                                             return (

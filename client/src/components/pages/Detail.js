@@ -67,7 +67,11 @@ function Detail() {
         const sizeMatch = sizeText.match(/Kích thước: (\S+)/);
 
         const color = colorMatch[1];
-        const size = sizeMatch[1];
+        var size = sizeMatch[1];
+
+        if (size === "NO") {
+            size = "NO SIZE";
+        }
 
         const foundProduct = productSizeColor.find(item => item.size_id.size_name === size && item.color_id.color_name === color);
 
@@ -121,8 +125,12 @@ function Detail() {
         const sizeMatch = sizeText.match(/Kích thước: (\S+)/);
 
         const color = colorMatch[1];
-        const size = sizeMatch[1];
+        var size = sizeMatch[1];
 
+        if (size === "NO") {
+            size = "NO SIZE";
+        }
+        
         const foundProduct = productSizeColor.find(item => item.size_id.size_name === size && item.color_id.color_name === color);
 
         if (quantity + 1 <= foundProduct.quantity) {
