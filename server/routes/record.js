@@ -12,6 +12,8 @@ const productController = require('../controllers/productController');
 const productSizeColorController = require('../controllers/productSizeColorController');
 const sizeController = require('../controllers/sizeController');
 const subcategoryController = require('../controllers/subCategoryController');
+const ratingController = require('../controllers/ratingController');
+const revenueController = require('../controllers/revenuesController');
 
 // Routes for 'roles'
 router.get('/roles', roleController.getRoles);
@@ -29,6 +31,10 @@ router.post('/users/send_email', userController.sendEmail);
 
 // Routes for 'categories'
 router.get('/categories', categoryController.getAllCategories);
+router.post('/categories', categoryController.addCategory);
+router.get('/categories/:CategoryId', categoryController.getCategoryById);
+router.put('/categories/:CategoryId', categoryController.editCategory);
+router.delete('/categories/:CategoryId', categoryController.deleteCategory);
 
 // Routes for 'colors'
 router.get('/colors', colorController.getAllColors);
@@ -58,6 +64,7 @@ router.get('/subcategories/:subcategoryName/:orderby/products', productControlle
 router.get('/categories/:categoryName/:orderby/products', productController.getProductsByCategory);
 router.get('/newest-products', productController.getNewestProducts);
 router.get('/search/:keyword', productController.search);
+router.get('/products/:userId/:productId', productController.checkUserHasPurchased);
 
 // Routes for 'ProductSizeColor'
 router.get('/productsizecolors/:product_id', productSizeColorController.getProductSizeColorById);
@@ -68,5 +75,18 @@ router.get('/sizes', sizeController.getAllSizes);
 // Route for getting subcategories by category_id
 router.get('/subcategories', subcategoryController.getAllCategoriesWithSubcategories);
 router.get('/subcategories/:categoryId', subcategoryController.getSubcategoriesByCategory);
+router.post('/subcategories', subcategoryController.addSubCategory);
+router.get('/subcategories/Sub/:SubCategoryId', subcategoryController.getSubCategoryById);
+router.put('/subcategories/:SubCategoryId', subcategoryController.editSubCategory);
+router.delete('/subcategories/:SubCategoryId', subcategoryController.deleteSubCategory);
+
+// Routes for 'Rating'
+router.post('/ratings', ratingController.addRating);
+router.get('/ratings/:product_id', ratingController.getRatingByProductId);
+router.get('/ratings/getByUser_Product/:userId/:productId', ratingController.getAllRating);
+router.delete('/ratings/:RatingId', ratingController.deleteRating);
+
+// Routes for 'revenues'
+router.post('/revenues/get-revenue', revenueController.getRevenue);
 
 module.exports = router;

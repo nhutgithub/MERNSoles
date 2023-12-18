@@ -1,26 +1,31 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useParams } from "react-router";
-import {API_URL} from '../../config';
+import { API_URL } from '../../config';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useCart } from '../Cart/CartContext';
+import ReviewAndRatingComponent from '../common/ReviewAndRatingComponent';
 
 function Detail() {
+    const user_id = localStorage.getItem('user_id');
+
     const { productsCount, updateToCart } = useCart();
 
+    const [comments, setComments] = useState([]);
     const [product, setProduct] = useState({});
     const [images, setImages] = useState([]);
     const [listProduct, setListProduct] = useState([]);
     const [productSizeColor, setProductSizeColor] = useState([]);
     const contentRef = useRef(null);
     const sizeRef = new useRef(null);
+    const [checkUserHasPurchased, setCheckUserHasPurchased] = useState(false);
 
     let { id } = useParams();
     useEffect(() => {
         axios.get(`${API_URL}/api/products/${id}`)
             .then(response => {
-                setProduct(response.data);
+                setProduct(response.data)
                 axios.get(`${API_URL}/api/subcategories/${response.data.subcategory_id}/products/${id}`)
                     .then(response => {
                         setListProduct(response.data);
@@ -42,6 +47,16 @@ function Detail() {
             })
             .catch(() => {
             });
+        setTimeout(() => {
+            axios.get(`${API_URL}/api/products/${user_id}/${id}`)
+                .then(response => {
+                    if (response.status == 200) {
+                        setCheckUserHasPurchased(true);
+                    }
+                })
+                .catch(() => {
+                });
+        }, 100);
     }, []);
 
     const formattedPrice = (price) => {
@@ -130,7 +145,7 @@ function Detail() {
         if (size === "NO") {
             size = "NO SIZE";
         }
-        
+
         const foundProduct = productSizeColor.find(item => item.size_id.size_name === size && item.color_id.color_name === color);
 
         if (quantity + 1 <= foundProduct.quantity) {
@@ -146,6 +161,58 @@ function Detail() {
             setQuantity(quantity - 1);
         }
     };
+
+    const [isReload, setIsReload] = useState(false);
+
+    useEffect(() => {
+        axios.get(`${API_URL}/api/ratings/${id}`)
+            .then(response => {
+                setComments(response.data)
+            })
+            .catch(() => {
+            });
+    }, [isReload]);
+
+    const handleComment = (rate, message) => {
+        const currentTime = new Date();
+        const newData = {
+            product_id: id,
+            user_id: user_id,
+            rating: rate,
+            comment: message,
+            created_at: currentTime
+        };
+
+        axios.post(`${API_URL}/api/ratings`, newData)
+            .then(response => {
+                setIsReload(!isReload);
+                document.querySelector('.rating-component').style.display = 'none';
+                document.querySelector('.feedback-tags').style.display = 'none';
+                document.querySelector('.button-box').style.display = 'none';
+                document.querySelector('.submited-box').style.display = 'block';
+                document.querySelector('.submited-box .loader').style.display = 'block';
+
+                setTimeout(() => {
+                    document.querySelector('.submited-box .loader').style.display = 'none';
+                    document.querySelector('.submited-box .success-message').style.display = 'block';
+                }, 1500);
+                toast("Đánh giá thành công!");
+            })
+            .catch((e) => {
+                toast(e.response.data.message);
+            });
+    };
+    const formatDate = (date) => {
+        if (!date) return '';
+        const d = new Date(date);
+        const day = d.getDate().toString().padStart(2, '0');
+        const month = (d.getMonth() + 1).toString().padStart(2, '0');
+        const year = d.getFullYear();
+        const hours = d.getHours().toString().padStart(2, '0');
+        const minutes = d.getMinutes().toString().padStart(2, '0');
+
+        return `${day}/${month}/${year} ${hours}:${minutes}`;
+    }
 
     return (
         <main className="mainContent-theme ">
@@ -226,7 +293,7 @@ function Detail() {
                                         <div className="product-image-detail box__product-gallery scroll">
                                             <ul
                                                 id="sliderproduct"
-                                                className="site-box-content 2 slide_product hidden-xs"
+                                                className="site-box-content 2 slide_product"
                                             >
                                                 {images.map(image => (
                                                     <li className="product-gallery-item gallery-item" key={image._id}>
@@ -389,6 +456,57 @@ function Detail() {
                                     </div>
                                 </div>
                             </div>
+                            <hr />
+                            {
+                                checkUserHasPurchased &&
+                                <>
+
+                                    <ReviewAndRatingComponent onComment={handleComment} />
+                                    <hr />
+                                </>
+                            }
+                            <div>
+                                {comments.map(comment => (
+                                    <>
+                                        <div key={comment._id}>
+                                            <img
+                                                alt={comment.user_id.firstname + comment.user_id.lastname}
+                                                src="https://lh4.googleusercontent.com/-T3-L8KezLEg/AAAAAAAAAAI/AAAAAAAAAAA/6385upYGISk/s40-c-k/photo.jpg"
+                                            />
+                                            <div>
+                                                <div>
+                                                    <a
+                                                        style={{ cursor: 'pointer', color: "blue" }}
+                                                    >
+                                                        {comment.user_id.firstname + " " + comment.user_id.lastname}
+                                                    </a>
+                                                </div>
+                                                <div>
+                                                    <span>{formatDate(comment.created_at)}</span>
+                                                    <span>
+                                                        <a
+                                                            href="https://www.google.com/support/contact/bin/request.py?entity=%7B%22author%22:%22AIe9_BHv6OQPd4C8ijQ30EdFVio0rnBFNaIlREy7fG786_satoOZwTaYVrOE7pPbRe7lN2EkaokT%22,%22groups%22:%5B%22maps%22%5D,%22id%22:%22https://maps.google.com/?q%3DCeviche%2Bloc:%2B2500%2BWest%2BAzeele%2BStreet,%2BTampa,%2BFL%2B33609%26gl%3DUS%26sll%3D27.94089,-82.485226%22%7D&client=13&contact-type=anno"
+                                                            title="Flag as inappropriate"
+                                                        />
+                                                    </span>
+                                                </div>
+                                                <div>
+                                                    <g id="G-REVIEW-STARS_21">
+                                                        <span id="SPAN_22">
+                                                            <span id="SPAN_23" />
+                                                        </span>
+                                                    </g>
+                                                    <div>
+                                                        <span>{comment.comment}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <hr />
+                                    </>
+                                ))}
+                            </div>
+
                             <div className="list-productRelated clearfix">
                                 <div className="heading-title text-center">
                                     <h2>Sản phẩm liên quan</h2>

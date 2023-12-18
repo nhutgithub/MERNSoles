@@ -8,7 +8,7 @@ const Size = require('../models/sizeModel');
 // Lấy tất cả đơn hàng
 exports.getAllOrders = async (req, res) => {
   try {
-    const orders = await Order.find().populate('user_id');
+    const orders = await Order.find();
     res.json(orders);
   } catch (error) {
     res.status(500).json({ message: 'Lỗi khi lấy danh sách đơn hàng' });
@@ -34,6 +34,7 @@ exports.createOrder = async (req, res) => {
   try {
     const newOrder = new Order({
       user_id: req.body.user_id,
+      receiver: req.body.receiver,
       phone: req.body.phone,
       address: req.body.address,
       order_date: req.body.order_date,
@@ -99,7 +100,7 @@ exports.deleteOrder = async (req, res) => {
     }
 
     // Xóa tất cả các mục đơn hàng (order items) liên quan đến đơn hàng
-    const deletedOrderItems = await OrderItem.deleteMany({ order_id: orderId });
+    await OrderItem.deleteMany({ order_id: orderId });
 
     res.json({ message: 'Đơn hàng và các mục đơn hàng đã bị xóa' });
   } catch (error) {

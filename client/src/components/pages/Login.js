@@ -67,13 +67,13 @@ function Login() {
                         },
                     })
                         .then(() => window.location.href = '/otpinput')
-                        .catch(console.log);
+                        .catch((e) => alert(e.response.data.message));
                 } else {
                     alert("Người dùng có tên đăng nhập này không tồn tại!");
                     console.log(response.data.message);
                 }
             })
-                .catch(console.log);
+            .catch((e) => alert(e.response.data.message));
         } else {
             setIsLoading(false);
             alert("Vui lòng nhập tên đăng nhập");

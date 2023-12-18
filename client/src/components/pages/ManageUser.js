@@ -179,10 +179,10 @@ function ManageUser() {
         }
         else {
             var flgEmail = false, flgUserName = false;
-            if (username != flgUserName) {
+            if (username != oldUserName) {
                 flgUserName = true;
             }
-            if (email != flgEmail) {
+            if (email != oldEmail) {
                 flgEmail = true;
             }
             const updatedInfo = {
@@ -326,6 +326,7 @@ function ManageUser() {
                                                 <thead className="thead-primary table-sorting">
                                                     <tr>
                                                         <th>#</th>
+                                                        <th>Username</th>
                                                         <th>Name</th>
                                                         <th>Phone</th>
                                                         <th>Email</th>
@@ -339,6 +340,7 @@ function ManageUser() {
                                                         return (
                                                             <tr key={user._id}>
                                                                 <td>{index + 1}</td>
+                                                                <td>{user.username}</td>
                                                                 <td>{user.firstname} {user.lastname}</td>
                                                                 <td>{user.phone}</td>
                                                                 <td>{user.email}</td>

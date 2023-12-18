@@ -12,10 +12,13 @@ const Cart = () => {
     const isLoggedIn = localStorage.getItem('isLoggedIn');
     const phoneLocal = localStorage.getItem('phone');
     const addressLocal = localStorage.getItem('address');
+    const firstnameLocal = localStorage.getItem('firstname');
+    const lastnameLocal = localStorage.getItem('lastname');
 
     const phoneRef = useRef(null);
     const addressRef = useRef(null);
     const noteRef = useRef(null);
+    const receiverRef = useRef(null);
 
     useEffect(() => {
         if (phoneLocal && phoneRef.current) {
@@ -24,12 +27,14 @@ const Cart = () => {
         if (addressLocal && addressRef.current) {
             addressRef.current.value = addressLocal;
         }
-    }, [phoneLocal, addressLocal]);
+        if (firstnameLocal && lastnameLocal && receiverRef.current) {
+            receiverRef.current.value = firstnameLocal + " " + lastnameLocal;
+        }
+    }, [phoneLocal, addressLocal, firstnameLocal, lastnameLocal]);
 
     const { productsCount, updateToCart } = useCart();
 
     let productData = JSON.parse(localStorage.getItem('cart')) || [];
-
     const [products, SetProducts] = useState(productData);
 
     // -----Increment Event------
@@ -213,10 +218,15 @@ const Cart = () => {
 
         const currentTime = new Date();
 
+        const phone = phoneRef.current.value;
+        const address = addressRef.current.value;
+        const receiver = receiverRef.current.value;
+
         const newData = {
             user_id: userid,
-            phone: phoneRef.current.value,
-            address: addressRef.current.value,
+            receiver: receiver,
+            phone: phone,
+            address: address,
             order_date: currentTime,
             total_price: cartTotalAmount,
             status: status,
@@ -300,20 +310,21 @@ const Cart = () => {
                                             products.length > 0 ? <button className="btn btn-danger mt-0 btn-sm" onClick={() => emptycart()}><i className="fa fa-trash-alt mr-2"></i><span>Làm trống giỏ hàng</span></button> : ''}
                                     </div>
                                 </div>
-                                <div className="card-body p-0">
+                                <div className="card-body p-0 table-responsive">
                                     {
-                                        products.length === 0 ? <table className="table cart-table mb-0">
-                                            <tbody>
-                                                <tr>
-                                                    <td colSpan="6">
-                                                        <div className="cart-empty">
-                                                            <i className="fa fa-shopping-cart"></i>
-                                                            <p>Giỏ hàng trống</p>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table> :
+                                        products.length === 0 ?
+                                            <table className="table cart-table mb-0">
+                                                <tbody>
+                                                    <tr>
+                                                        <td colSpan="6">
+                                                            <div className="cart-empty">
+                                                                <i className="fa fa-shopping-cart"></i>
+                                                                <p>Giỏ hàng trống</p>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table> :
                                             <>
                                                 <table className="table cart-table mb-0">
                                                     <thead>
@@ -367,6 +378,10 @@ const Cart = () => {
                                                 {
                                                     isLoggedIn ?
                                                         <div className="col-md-3">
+                                                            <div className="form-group">
+                                                                <label>Người nhận <b style={{ color: "red" }}>*</b></label>
+                                                                <input type="text" className="form-control" ref={receiverRef} />
+                                                            </div>
                                                             <div className="form-group">
                                                                 <label>Số điện thoại <b style={{ color: "red" }}>*</b></label>
                                                                 <input type="tel" className="form-control" ref={phoneRef} />
