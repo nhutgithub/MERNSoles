@@ -5,12 +5,76 @@ exports.getRevenue = async (req, res) => {
 
     if (data) {
         try {
-            if (data.date) {
+            if (data.startDate && data.endDate) {
+                const startDate = new Date(data.startDate);
+                const endDate = new Date(data.endDate);
+
+                const salesData = await OrderItem.aggregate([
+                    {
+                        $lookup: {
+                            from: 'orders',
+                            localField: 'order_id',
+                            foreignField: '_id',
+                            as: 'order'
+                        }
+                    },
+                    {
+                        $unwind: '$order'
+                    },
+                    {
+                        $match: {
+                            'order.order_date': { $exists: true },
+                            $expr: {
+                                $and: [
+                                    { $gte: ['$order.order_date', startDate] },
+                                    { $lt: ['$order.order_date', endDate] },
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        $lookup: {
+                            from: 'products',
+                            localField: 'product_id',
+                            foreignField: '_id',
+                            as: 'product'
+                        }
+                    },
+                    {
+                        $unwind: '$product'
+                    },
+                    {
+                        $group: {
+                            _id: '$product_id',
+                            productName: { $first: '$product.name' },
+                            totalQuantity: { $sum: '$quantity' },
+                            totalPrice: { $sum: { $multiply: ['$order.total_price', '$quantity'] } }
+                        }
+                    },
+                    {
+                        $project: {
+                            _id: 0,
+                            productName: 1,
+                            totalQuantity: 1,
+                            totalPrice: 1
+                        }
+                    }
+                ]);
+
+                if (salesData.length === 0) {
+                    return res.json({ revenue: 0 + ' đồng' });;
+                }
+                const totalSales = salesData.reduce((acc, item) => acc + item.totalPrice, 0);
+                salesData.sort((a, b) => b.totalQuantity - a.totalQuantity);
+
+                const formattedData = new Intl.NumberFormat('vi-VN').format(totalSales) + ' đồng';
+                res.json({ revenue: formattedData, salesData: salesData });
+            } else if (data.date) {
                 const date = new Date(data.date);
                 const year = date.getFullYear();
-                const month = date.getMonth() + 1; // Tháng trong JavaScript là 0-indexed, nên cần cộng thêm 1
-            
-                const revenue = await OrderItem.aggregate([
+                const month = date.getMonth() + 1;
+
+                const salesData = await OrderItem.aggregate([
                     {
                         $lookup: {
                             from: 'orders',
@@ -35,22 +99,47 @@ exports.getRevenue = async (req, res) => {
                         }
                     },
                     {
+                        $lookup: {
+                            from: 'products',
+                            localField: 'product_id',
+                            foreignField: '_id',
+                            as: 'product'
+                        }
+                    },
+                    {
+                        $unwind: '$product'
+                    },
+                    {
                         $group: {
-                            _id: null,
-                            total: { $sum: '$order.total_price' }
+                            _id: '$product_id',
+                            productName: { $first: '$product.name' },
+                            totalQuantity: { $sum: '$quantity' },
+                            totalPrice: { $sum: { $multiply: ['$order.total_price', '$quantity'] } }
+                        }
+                    },
+                    {
+                        $project: {
+                            _id: 0,
+                            productName: 1,
+                            totalQuantity: 1,
+                            totalPrice: 1
                         }
                     }
                 ]);
-                if (revenue.length === 0) {
+
+                if (salesData.length === 0) {
                     return res.json({ revenue: 0 + ' đồng' });;
                 }
-                const formattedData = new Intl.NumberFormat('vi-VN').format(revenue[0].total) + ' đồng';
-                res.json({ revenue: formattedData });
+                const totalSales = salesData.reduce((acc, item) => acc + item.totalPrice, 0);
+                salesData.sort((a, b) => b.totalQuantity - a.totalQuantity);
+
+                const formattedData = new Intl.NumberFormat('vi-VN').format(totalSales) + ' đồng';
+                res.json({ revenue: formattedData, salesData: salesData });
             } else if (data.month && data.year) {
                 const year = parseInt(data.year);
                 const month = parseInt(data.month);
-            
-                const revenue = await OrderItem.aggregate([
+
+                const salesData = await OrderItem.aggregate([
                     {
                         $lookup: {
                             from: 'orders',
@@ -74,23 +163,47 @@ exports.getRevenue = async (req, res) => {
                         }
                     },
                     {
+                        $lookup: {
+                            from: 'products',
+                            localField: 'product_id',
+                            foreignField: '_id',
+                            as: 'product'
+                        }
+                    },
+                    {
+                        $unwind: '$product'
+                    },
+                    {
                         $group: {
-                            _id: null,
-                            total: { $sum: '$order.total_price' }
+                            _id: '$product_id',
+                            productName: { $first: '$product.name' },
+                            totalQuantity: { $sum: '$quantity' },
+                            totalPrice: { $sum: { $multiply: ['$order.total_price', '$quantity'] } }
+                        }
+                    },
+                    {
+                        $project: {
+                            _id: 0,
+                            productName: 1,
+                            totalQuantity: 1,
+                            totalPrice: 1
                         }
                     }
                 ]);
-            
-                if (revenue.length === 0) {
+
+                if (salesData.length === 0) {
                     return res.json({ revenue: 0 + ' đồng' });;
                 }
-                const formattedData = new Intl.NumberFormat('vi-VN').format(revenue[0].total) + ' đồng';
-                res.json({ revenue: formattedData });
+                const totalSales = salesData.reduce((acc, item) => acc + item.totalPrice, 0);
+                salesData.sort((a, b) => b.totalQuantity - a.totalQuantity);
+
+                const formattedData = new Intl.NumberFormat('vi-VN').format(totalSales) + ' đồng';
+                res.json({ revenue: formattedData, salesData: salesData });
             }
-             else if (data.year) {
+            else if (data.year) {
                 const year = parseInt(data.year);
 
-                const revenue = await OrderItem.aggregate([
+                const salesData = await OrderItem.aggregate([
                     {
                         $lookup: {
                             from: 'orders',
@@ -114,18 +227,42 @@ exports.getRevenue = async (req, res) => {
                         }
                     },
                     {
+                        $lookup: {
+                            from: 'products',
+                            localField: 'product_id',
+                            foreignField: '_id',
+                            as: 'product'
+                        }
+                    },
+                    {
+                        $unwind: '$product'
+                    },
+                    {
                         $group: {
-                            _id: null,
-                            total: { $sum: '$order.total_price' }
+                            _id: '$product_id',
+                            productName: { $first: '$product.name' },
+                            totalQuantity: { $sum: '$quantity' },
+                            totalPrice: { $sum: { $multiply: ['$order.total_price', '$quantity'] } }
+                        }
+                    },
+                    {
+                        $project: {
+                            _id: 0,
+                            productName: 1,
+                            totalQuantity: 1,
+                            totalPrice: 1
                         }
                     }
                 ]);
-                
-                if (revenue.length === 0) {
+
+                if (salesData.length === 0) {
                     return res.json({ revenue: 0 + ' đồng' });;
                 }
-                const formattedData = new Intl.NumberFormat('vi-VN').format(revenue[0].total) + ' đồng';
-                res.json({ revenue: formattedData });
+                const totalSales = salesData.reduce((acc, item) => acc + item.totalPrice, 0);
+                salesData.sort((a, b) => b.totalQuantity - a.totalQuantity);
+
+                const formattedData = new Intl.NumberFormat('vi-VN').format(totalSales) + ' đồng';
+                res.json({ revenue: formattedData, salesData: salesData });
             }
 
 

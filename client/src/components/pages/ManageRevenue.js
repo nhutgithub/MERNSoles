@@ -5,20 +5,32 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const ManageRevenue = () => {
-    const [selectedType, setSelectedType] = useState('byDate');
+    const [selectedType, setSelectedType] = useState('byPeriod');
     const [inputDate, setInputDate] = useState('');
     const [inputMonth, setInputMonth] = useState('');
     const [inputYear, setInputYear] = useState('');
     const [content, setContent] = useState('');
+    const [salesData, setSalesData] = useState([]);
+    const [selectedOption, setSelectedOption] = useState('Tất cả');
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
 
     const showInputField = (value) => {
         setSelectedType(value);
+        setContent('');
+        setSalesData([]);
     };
 
     const revenueManagement = () => {
         let data;
-
-        if (selectedType === 'byDate') {
+        if (selectedType === 'byPeriod') {
+            if (startDate.trim() !== '' && endDate.trim() !== '') {
+                data = {
+                    startDate: startDate,
+                    endDate: endDate
+                };
+            }
+        } else if (selectedType === 'byDate') {
             if (inputDate.trim() !== '') {
                 data = {
                     date: inputDate,
@@ -47,11 +59,14 @@ const ManageRevenue = () => {
                 },
             })
                 .then((response) => {
-                    // Xử lý dữ liệu trả về từ server
-
-                    setContent(response.data.revenue);
-                    // Hiển thị dữ liệu trên giao diện
-                    // Ví dụ: set state hoặc hiển thị thông báo
+                    if (response.data.revenue === '0 đồng') {
+                        setContent('0 đồng');
+                        setSalesData([]);
+                    }
+                    else {
+                        setContent(response.data.revenue);
+                        setSalesData(response.data.salesData);
+                    }
                 })
                 .catch((error) => {
                     console.error('Đã xảy ra lỗi khi lấy doanh thu: ', error);
@@ -60,6 +75,50 @@ const ManageRevenue = () => {
             alert('Vui lòng chọn thời gian');
         }
     };
+
+    const handleStartDateChange = (e) => {
+        const newStartDate = e.target.value;
+        if (newStartDate <= endDate || !endDate) {
+            setStartDate(newStartDate);
+        } else {
+            alert('Ngày bắt đầu phải nhỏ hơn ngày kết thúc');
+        }
+    };
+
+    const handleEndDateChange = (e) => {
+        const newEndDate = e.target.value;
+        if (newEndDate >= startDate || !startDate) {
+            setEndDate(newEndDate);
+        } else {
+            alert('Ngày kết thúc phải lớn hơn ngày bắt đầu');
+        }
+    };
+
+    const filterData = () => {
+        switch (selectedOption) {
+            case 'Top 1':
+                return salesData.slice(0, 1);
+            case 'Top 3':
+                return salesData.slice(0, 3);
+            case 'Top 5':
+                return salesData.slice(0, 5);
+            case 'Top 10':
+                return salesData.slice(0, 10);
+            default:
+                return salesData;
+        }
+    };
+    const filteredData = filterData();
+
+    const formattedPrice = (price) => {
+        const priceAsNumber = parseFloat(price);
+        if (!isNaN(priceAsNumber)) {
+            const formattedPrice = priceAsNumber.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+            return formattedPrice;
+        }
+        return "";
+    }
+
     return (
         <div className='container mt-4'>
             <div className="col-md-3"></div>
@@ -78,10 +137,37 @@ const ManageRevenue = () => {
                                 onChange={(e) => showInputField(e.target.value)}
                                 value={selectedType}
                             >
+                                <option value="byPeriod">Theo khoảng thời gian</option>
                                 <option value="byDate">Theo ngày</option>
                                 <option value="byMonth">Theo tháng</option>
                                 <option value="byYear">Theo năm</option>
                             </select>
+
+                            <div id="divPeriod" style={{ display: selectedType === 'byPeriod' ? 'block' : 'none' }}>
+                                <div>
+                                    <label htmlFor="inputStartDate">Ngày bắt đầu:</label>
+                                    <input
+                                        type="date"
+                                        name="inputStartDate"
+                                        id="inputStartDate"
+                                        className="form-control"
+                                        value={startDate}
+                                        onChange={handleStartDateChange}
+                                    />
+                                </div>
+
+                                <div>
+                                    <label htmlFor="inputEndDate">Ngày kết thúc:</label>
+                                    <input
+                                        type="date"
+                                        name="inputEndDate"
+                                        id="inputEndDate"
+                                        className="form-control"
+                                        value={endDate}
+                                        onChange={handleEndDateChange}
+                                    />
+                                </div>
+                            </div>
 
                             <div id="divDate" style={{ display: selectedType === 'byDate' ? 'block' : 'none' }}>
                                 <label htmlFor="inputDate">Ngày:</label>
@@ -125,9 +211,56 @@ const ManageRevenue = () => {
                                 Thống kê
                             </button>
 
-                            <div id="result" className='mt-4'>
-                                Doanh thu: {content}
-                            </div>
+                            {
+                                content &&
+                                <div id="result" className='mt-4'>
+                                    Doanh thu: {content}
+                                </div>
+                            }
+                            {
+                                salesData.length !== 0 &&
+                                <>
+                                    <h3>Danh sách sản phẩm</h3>
+                                    <select
+                                        className='form-control mb-2'
+                                        value={selectedOption}
+                                        onChange={(e) => setSelectedOption(e.target.value)}
+                                    >
+                                        <option>Tất cả</option>
+                                        <option>Top 1</option>
+                                        <option>Top 3</option>
+                                        <option>Top 5</option>
+                                        <option>Top 10</option>
+                                    </select>
+                                    <div className="table-responsive">
+                                        <table className="table table-text-small mb-0">
+                                            <thead className="thead-primary table-sorting">
+                                                <tr>
+                                                    <th>#</th>
+                                                    <th>Tên sản phẩm</th>
+                                                    <th>Số lượng bán</th>
+                                                    <th>Tổng tiền</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {
+                                                    filteredData.map((data, index) => {
+                                                        return (
+                                                            <tr key={data._id}>
+                                                                <td>{index + 1}</td>
+                                                                <td>{data.productName}</td>
+                                                                <td>{data.totalQuantity}</td>
+                                                                <td>{formattedPrice(data.totalPrice)}</td>
+                                                            </tr>
+                                                        )
+                                                    })
+                                                }
+
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </>
+                            }
                         </div>
                     </div>
                 </div>
