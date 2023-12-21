@@ -96,8 +96,6 @@ exports.editUser = async (req, res) => {
         return res.status(401).json({ message: 'Người dùng đã tồn tại!' });
       }
     }
-    const currentUser = await User.findById(req.params.userId);
-
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
