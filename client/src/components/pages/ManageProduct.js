@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import '../../App.css';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import {API_URL} from '../../config';
+import { API_URL } from '../../config';
 import axios from 'axios';
 import Pagination from "https://cdn.skypack.dev/rc-pagination@3.1.15";
 import { confirmAlert } from 'react-confirm-alert';
@@ -35,6 +35,7 @@ function ManageProduct() {
     const [selectColors, setSelectColors] = useState([]);
     const [selectQuantitys, setSelectQuantitys] = useState([]);
     const [selectedImages, setSelectedImages] = useState([]);
+    const [images, setImages] = useState([]);
 
     useEffect(() => {
         axios.get(`${API_URL}/api/categories`)
@@ -126,6 +127,10 @@ function ManageProduct() {
             })
             .catch(() => {
             });
+        await axios.get(`${API_URL}/api/products/${id}/images`)
+            .then(response => { setImages(response.data); })
+            .catch(() => {
+            });
     };
 
     const handleClickDelete = async (id) => {
@@ -179,6 +184,7 @@ function ManageProduct() {
         setSelectQuantitys([]);
         setIdItem(0);
         setVisible(!isVisible);
+        setImages([]);
     }
 
     const clickBtnAdd_Edit = () => {
@@ -187,7 +193,7 @@ function ManageProduct() {
         const description = descriptionRef.current.value;
         const images = imagesRef.current.value;
 
-        if (!productName || !price || !description || !images) {
+        if (!productName || !price || !description) {
             toast('Vui lòng điền đầy đủ thông tin');
             return;
         }
@@ -201,6 +207,12 @@ function ManageProduct() {
         ));
 
         if (idItem === 0) {
+
+            if (selectedImages.length < 2) {
+                toast('Vui lòng chọn ít nhất 2 hình ảnh');
+                return;
+            }
+
             const formData = new FormData();
 
             formData.append('name', productName);
@@ -323,6 +335,47 @@ function ManageProduct() {
         return "";
     }
 
+    const deleteImage = (id) => {
+        if (images.length == 2) {
+            toast('Mỗi sản phẩm phải có ít nhất 2 hình ảnh');
+            return;
+        }
+        confirmAlert({
+            title: "Xác nhận xóa",
+            message: "Bạn muốn xóa hình ảnh sản phẩm?",
+            buttons: [
+                {
+                    label: 'Xác nhận',
+                    onClick: () => {
+                        axios.delete(`${API_URL}/api/images/${id}`)
+                            .then((response) => {
+                                if (response.status === 200) {
+                                    toast('Xóa hình ảnh thành công');
+                                    setImages(response.data.images);
+                                } else {
+                                    toast('Lỗi khi xóa hình ảnh');
+                                }
+                            })
+                            .catch((e) => {
+                                toast(e.response.data.message);
+                            });
+                    }
+                },
+                {
+                    label: 'Hủy'
+                }
+            ],
+            closeOnEscape: true,
+            closeOnClickOutside: true,
+            keyCodeForClose: [8, 32],
+            willUnmount: () => { },
+            afterClose: () => { },
+            onClickOutside: () => { },
+            onKeypress: () => { },
+            onKeypressEscape: () => { },
+            overlayClassName: "overlay-custom-class-name"
+        });
+    }
     return (
         <>
             <div className="container-fluid mt-5 mb-5">
@@ -380,8 +433,22 @@ function ManageProduct() {
                                                                 </select>
                                                             </div>
                                                             <div className="form-group">
-                                                                <label>Hình ảnh <b style={{ color: "red" }}>*</b></label>
+                                                                <label>Hình ảnh
+                                                                    {
+                                                                        idItem == 0 && <b style={{ color: "red" }}>*</b>
+                                                                    }
+                                                                </label>
                                                                 <input type="file" multiple className="form-control" ref={imagesRef} onChange={handleFileChange} />
+                                                            </div>
+                                                            <div className="form-group row">
+                                                                {idItem !== 0 && images.map(image => (
+                                                                    <div key={image._id}>
+                                                                        <img style={{ width: '100px' }}
+                                                                            src={API_URL + image.image_url}
+                                                                        />
+                                                                        <a className="btn btn-danger ml-2" style={{ cursor: 'pointer' }} onClick={() => deleteImage(image._id)}>Xóa</a>
+                                                                    </div>
+                                                                ))}
                                                             </div>
                                                         </div>
                                                     </div>
