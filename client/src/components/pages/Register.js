@@ -51,6 +51,8 @@ function Register() {
                 } else {
                     toast(response.data.error);
                 }
+            }).catch((e) => {
+                toast(e.response.data.message);
             });
         } catch (error) {
             toast('Lỗi đăng ký:', error);
