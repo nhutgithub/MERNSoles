@@ -8,6 +8,8 @@ import Pagination from "https://cdn.skypack.dev/rc-pagination@3.1.15";
 import { confirmAlert } from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css';
 import { v4 as uuidv4 } from 'uuid';
+import Modal from 'react-bootstrap/Modal';
+import Button from 'react-bootstrap/Button';
 
 function ManageProduct() {
     const isLoggedIn = localStorage.getItem('isLoggedIn');
@@ -36,6 +38,9 @@ function ManageProduct() {
     const [selectQuantitys, setSelectQuantitys] = useState([]);
     const [selectedImages, setSelectedImages] = useState([]);
     const [images, setImages] = useState([]);
+
+    const [show, setShow] = useState(false);
+    const [contentDetail, setContentDetail] = useState('');
 
     useEffect(() => {
         axios.get(`${API_URL}/api/categories`)
@@ -68,6 +73,48 @@ function ManageProduct() {
             .catch(() => {
             });
     }, [isReload]);
+
+    const handleClose = () => setShow(false);
+
+    const handleShowInventoryDetails = (id) => {
+        setShow(true);
+        axios.get(`${API_URL}/api/productsizecolors/${id}`)
+            .then((response) => {
+                if (response.status === 200) {
+                    console.log(response);
+                    var orderDetail = response.data;
+                    console.log(orderDetail);
+                    var n = 1;
+                    var html = '';
+                    html += '<table class="table">'
+                    html += '<thead>'
+                    html += '<tr>'
+                    html += '<th>#</th>'
+                    html += '<th>Màu sắc</th>'
+                    html += '<th>Kích thước</th>'
+                    html += '<th>Số lượng</th>'
+                    html += '</tr>'
+                    html += '</thead>'
+                    html += '<tbody>'
+                    orderDetail.forEach((item) => {
+                        html += '<tr>'
+                        html += '<td>' + n + '</td>'
+                        html += '<td>' + item.color_id.color_name + '</td>'
+                        html += '<td>' + item.size_id.size_name + '</td>'
+                        html += '<td>' + item.quantity + '</td>'
+                        html += '</tr>'
+                        n++;
+                    });
+                    html += '</tbody>'
+                    html += '</table>'
+                    setContentDetail(html);
+                } else {
+                    toast('Lỗi khi lấy thông tin đơn hàng chi tiết');
+                }
+            })
+            .catch(() => {
+            });
+    }
 
     const handleClickEdit = async (id) => {
         await axios.get(`${API_URL}/api/products/${id}`)
@@ -555,7 +602,7 @@ function ManageProduct() {
                                                                     <td>
                                                                         <button className="btn btn-warning" onClick={() => handleClickEdit(data._id)}>Sửa</button>
                                                                         <button className="btn btn-danger ml-2" onClick={() => handleClickDelete(data._id)}>Xóa</button>
-                                                                        <button className="btn btn-success ml-2" onClick={() => handleClickDelete(data._id)}>Tồn kho</button>
+                                                                        <button className="btn btn-success ml-2" onClick={() => handleShowInventoryDetails(data._id)}>Tồn kho</button>
                                                                     </td>
                                                                 </tr>
                                                             )
@@ -582,6 +629,17 @@ function ManageProduct() {
                                 </div>
                             </div>
                         </div>
+                        <Modal show={show} onHide={handleClose}>
+                            <Modal.Header>
+                                <Modal.Title>Chi tiết tồn kho</Modal.Title>
+                            </Modal.Header>
+                            <Modal.Body><div dangerouslySetInnerHTML={{ __html: contentDetail }} /></Modal.Body>
+                            <Modal.Footer>
+                                <Button variant="secondary" onClick={handleClose}>
+                                    Đóng
+                                </Button>
+                            </Modal.Footer>
+                        </Modal>
                     </>
                     : <h2>Không có quyền truy cập</h2>
                 }
