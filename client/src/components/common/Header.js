@@ -53,7 +53,7 @@ function Header() {
     }, []);
 
     const handleOnSearch = (string) => {
-        if (string == searchText) {
+        if (string == searchText && string !== "") {
             window.location.href = `/search/${string}`;
         }
         else {
@@ -148,7 +148,7 @@ function Header() {
                             </div>
                             <div className="col-md-4 wrap-header-3 col-sm-6 col-xs-5">
                                 <div className="main-header--action row-flex">
-                                    <div className="action--search" id="site-search-handle" style={{ width: "200px" }}>
+                                    <div className="action--search" id="site-search-handle" style={{ width: "200px", zIndex: 9999 }}>
                                         <ReactSearchAutocomplete
                                             items={items}
                                             onSearch={handleOnSearch}
