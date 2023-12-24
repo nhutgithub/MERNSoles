@@ -555,6 +555,7 @@ function ManageProduct() {
                                                                     <td>
                                                                         <button className="btn btn-warning" onClick={() => handleClickEdit(data._id)}>Sửa</button>
                                                                         <button className="btn btn-danger ml-2" onClick={() => handleClickDelete(data._id)}>Xóa</button>
+                                                                        <button className="btn btn-success ml-2" onClick={() => handleClickDelete(data._id)}>Tồn kho</button>
                                                                     </td>
                                                                 </tr>
                                                             )
