@@ -6,8 +6,16 @@ exports.getProductSizeColorById = async (req, res) => {
     const product_id = req.params.product_id;
 
     const productSizeColor = await ProductSizeColor.find({ product_id: product_id })
-      .populate('size_id', 'size_name')
-      .populate('color_id', 'color_name');
+      .populate({
+        path: 'size_id',
+        select: 'size_name',
+        match: { is_delete: 0 }
+      })
+      .populate({
+        path: 'color_id',
+        select: 'color_name',
+        match: { is_delete: 0 }
+      });
 
     if (!productSizeColor) {
       return res.status(404).json({ message: 'Mục sản phẩm không tồn tại' });

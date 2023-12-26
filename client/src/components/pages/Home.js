@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import {API_URL} from '../../config';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function Home() {
     const [listProduct, setListProduct] = useState([]);
@@ -8,7 +10,8 @@ function Home() {
     useEffect(() => {
         axios.get(`${API_URL}/api/newest-products`)
             .then(response => setListProduct(response.data))
-            .catch(() => {
+            .catch((e) => {
+                toast(e.response.data.message);
             });
     }, []);
 
@@ -291,6 +294,8 @@ function Home() {
                 {/* 6. Nhóm san phẩm 3 */}
                 {/* Blog */}
             </main>
+            <ToastContainer />
+
         </>
     );
 }

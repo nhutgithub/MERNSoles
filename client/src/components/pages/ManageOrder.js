@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import '../../App.css';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import {API_URL} from '../../config';
+import { API_URL } from '../../config';
 import axios from 'axios';
 import Pagination from "https://cdn.skypack.dev/rc-pagination@3.1.15";
 import { confirmAlert } from 'react-confirm-alert';
@@ -18,15 +18,18 @@ function ManageOrder() {
     }
     const [show, setShow] = useState(false);
     const [contentDetail, setContentDetail] = useState('');
+    const [status, setStatus] = useState('Tất cả');
     const [isReload, setIsReload] = useState(false);
     const [orders, setOrders] = useState([]);
 
+
     useEffect(() => {
-        axios.get(`${API_URL}/api/orders`)
+        axios.get(`${API_URL}/api/orders/${status}`)
             .then((response) => setOrders(response.data))
-            .catch(() => {
+            .catch((e) => {
+                toast(e.response.data.message);
             });
-    }, [isReload]);
+    }, [isReload, status]);
 
     const handleClickDelete = async (id) => {
         confirmAlert({
@@ -63,8 +66,8 @@ function ManageOrder() {
             } else {
                 toast('Lỗi khi xóa đơn hàng');
             }
-        } catch (error) {
-            toast('Lỗi khi gọi API deleteOrder:', error);
+        } catch (e) {
+            toast(e.response.data.message);
         }
     };
 
@@ -112,8 +115,8 @@ function ManageOrder() {
                 } else {
                     toast('Lỗi khi lấy thông tin đơn hàng chi tiết');
                 }
-            })
-            .catch(() => {
+            }).catch((e) => {
+                toast(e.response.data.message);
             });
     }
 
@@ -130,8 +133,8 @@ function ManageOrder() {
                                 const message = response.data.message;
                                 toast(message);
                                 setIsReload(!isReload);
-                            })
-                            .catch(() => {
+                            }).catch((e) => {
+                                toast(e.response.data.message);
                             });
                     }
                 },
@@ -218,6 +221,18 @@ function ManageOrder() {
 
                                         <div className="table-filter-info">
                                             <h1>QUẢN LÍ ĐƠN HÀNG</h1>
+                                            <div className="col-md-3 mb-2">
+                                                <label>Trạng thái:</label>
+                                                <select className="form-control" onChange={(e) => setStatus(e.target.value)}>
+                                                    <option value="Tất cả">Tất cả</option>
+                                                    <option value="Chờ xác nhận">Chờ xác nhận</option>
+                                                    <option value="Đã xác nhận">Đã xác nhận</option>
+                                                    <option value="Đang giao hàng">Đang giao hàng</option>
+                                                    <option value="Đã giao hàng">Đã giao hàng</option>
+                                                    <option value="Đã thanh toán">Đã thanh toán</option>
+                                                    <option value="Hủy đơn">Hủy đơn</option>
+                                                </select>
+                                            </div>
                                             <Pagination
                                                 className="pagination-data"
                                                 showTotal={(total, range) => `Showing ${range[0]}-${range[1]} of ${total}`}
@@ -262,7 +277,7 @@ function ManageOrder() {
                                                                     </select>
                                                                 </td>
                                                                 <td>{formattedPrice(order.total_price)}</td>
-                                                                <td>
+                                                                <td style={{ display: 'flex' }}>
                                                                     <button className="btn btn-success" onClick={() => handleShowDetail(order._id)}>Chi tiết</button>
                                                                     <button className="btn btn-danger ml-2" onClick={() => handleClickDelete(order._id)}>Xóa</button>
                                                                 </td>

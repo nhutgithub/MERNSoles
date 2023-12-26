@@ -57,6 +57,6 @@ exports.deleteRating = async (req, res) => {
     }
     res.json({ message: 'Đánh giá đã bị xóa' });
   } catch (error) {
-    res.status(500).json({ message: 'Lỗi khi xóa Đánh giá' + error });
+    res.status(500).json({ message: 'Lỗi khi xóa đánh giá' });
   }
 };  

@@ -3,6 +3,8 @@ import { API_URL } from '../../config';
 import axios from 'axios';
 import { useParams } from "react-router";
 import Pagination from "https://cdn.skypack.dev/rc-pagination@3.1.15";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function Collection() {
     let { name, category } = useParams();
@@ -13,16 +15,16 @@ function Collection() {
             axios.get(`${API_URL}/api/categories/${name}/manual/products`)
                 .then((response) => {
                     setDataByCategory(response.data);
-                })
-                .catch(() => {
+                }).catch((e) => {
+                    toast(e.response.data.message);
                 });
         }
         else {
             axios.get(`${API_URL}/api/subcategories/${name}/manual/products`)
                 .then((response) => {
                     setDataByCategory(response.data);
-                })
-                .catch(() => {
+                }).catch((e) => {
+                    toast(e.response.data.message);
                 });
         }
 
@@ -143,16 +145,16 @@ function Collection() {
                                                                         axios.get(`${API_URL}/api/categories/${name}/${e.target.value}/products`)
                                                                             .then((response) => {
                                                                                 setDataByCategory(response.data);
-                                                                            })
-                                                                            .catch(() => {
+                                                                            }).catch((e) => {
+                                                                                toast(e.response.data.message);
                                                                             });
                                                                     }
                                                                     else {
                                                                         axios.get(`${API_URL}/api/subcategories/${name}/${e.target.value}/products`)
                                                                             .then((response) => {
                                                                                 setDataByCategory(response.data);
-                                                                            })
-                                                                            .catch(() => {
+                                                                            }).catch((e) => {
+                                                                                toast(e.response.data.message);
                                                                             });
                                                                     }
                                                                 }}>
@@ -254,6 +256,7 @@ function Collection() {
                     </div>
                 </div>
             </div>
+            <ToastContainer />
         </main>
 
     );

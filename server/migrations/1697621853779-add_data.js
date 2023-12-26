@@ -221,59 +221,78 @@ module.exports = {
 
     await colorsCollection.insertMany([
       {
-        color_name: "Đỏ"
+        color_name: "Đỏ",
+        is_delete: 0
       }, {
-        color_name: "Trắng"
+        color_name: "Trắng",
+        is_delete: 0
       }, {
-        color_name: "Đen"
+        color_name: "Đen",
+        is_delete: 0
       }, {
-        color_name: "Xanh"
+        color_name: "Xanh",
+        is_delete: 0
       }, {
-        color_name: "Vàng"
+        color_name: "Vàng",
+        is_delete: 0
       }, {
-        color_name: "Hồng"
+        color_name: "Hồng",
+        is_delete: 0
       },
     ]);
 
     await sizesCollection.insertMany([
       {
-        size_name: "NO SIZE"
+        size_name: "NO SIZE",
+        is_delete: 0
       },
       {
-        size_name: "M"
+        size_name: "M",
+        is_delete: 0
       },
       {
-        size_name: "L"
+        size_name: "L",
+        is_delete: 0
       },
       {
-        size_name: "XL"
+        size_name: "XL",
+        is_delete: 0
       },
       {
-        size_name: "XXL"
+        size_name: "XXL",
+        is_delete: 0
       },
       {
-        size_name: "37"
+        size_name: "37",
+        is_delete: 0
       },
       {
-        size_name: "38"
+        size_name: "38",
+        is_delete: 0
       },
       {
-        size_name: "39"
+        size_name: "39",
+        is_delete: 0
       },
       {
-        size_name: "40"
+        size_name: "40",
+        is_delete: 0
       },
       {
-        size_name: "41"
+        size_name: "41",
+        is_delete: 0
       },
       {
-        size_name: "42"
+        size_name: "42",
+        is_delete: 0
       },
       {
-        size_name: "43"
+        size_name: "43",
+        is_delete: 0
       },
       {
-        size_name: "44"
+        size_name: "44",
+        is_delete: 0
       }
     ]);
 

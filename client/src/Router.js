@@ -17,11 +17,17 @@ import ManageProfile from './components/pages/ManageProfile';
 import ManageCategory from './components/pages/ManageCategory';
 import ManageRevenue from './components/pages/ManageRevenue';
 import ManageRating from './components/pages/ManageRating';
+import ManageColor_Size from './components/pages/ManageColor_Size';
+import Favorite from './components/pages/Favorite';
+import Callback from './components/auth/callback';
 
 class DieuHuongURL extends Component {
     render() {
         return (
             <Routes>
+                <Route path="/auth/callback" element={<Callback />} />
+                <Route path="/favorite" element={<Favorite />} />
+                <Route path="/manage-color-size" element={<ManageColor_Size />} />
                 <Route path="/manage-rating" element={<ManageRating />} />
                 <Route path="/manage-revenue" element={<ManageRevenue />} />
                 <Route path="/manage-category" element={<ManageCategory />} />

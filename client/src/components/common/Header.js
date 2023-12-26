@@ -3,6 +3,8 @@ import { API_URL } from '../../config';
 import axios from 'axios';
 import { ReactSearchAutocomplete } from 'react-search-autocomplete'
 import { useCart } from '../Cart/CartContext';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function Header() {
     const { productsCount, addToCart, removeToCart } = useCart();
@@ -29,12 +31,13 @@ function Header() {
                     list.push(item);
                 });
                 setItem(list);
-            })
-            .catch(() => {
+            }).catch((e) => {
+                toast(e.response.data.message);
             });
         axios.get(`${API_URL}/api/subcategories`)
             .then(response => setCategories(response.data))
-            .catch(() => {
+            .catch((e) => {
+                toast(e.response.data.message);
             });
         // Tên tệp JavaScript và đường dẫn
         const scripts = [
@@ -74,6 +77,7 @@ function Header() {
     }
 
     const handleLogout = () => {
+        localStorage.removeItem('user_id');
         localStorage.removeItem('username');
         localStorage.removeItem('firstname');
         localStorage.removeItem('lastname');
@@ -127,8 +131,8 @@ function Header() {
                 <div className="wrapper-header  header-transparent " id="themes-header">
                     <div className="container">
                         <div className="header-middle row-flex flex-flow-header">
-                            <div className="col-md-4 wrap-header-1 hidden-sm hidden-xs" />
-                            <div className="col-md-4 wrap-header-2 col-sm-6 col-xs-7">
+                            <div className="col-md-5 wrap-header-1 hidden-sm hidden-xs" />
+                            <div className="col-md-2 wrap-header-2 col-sm-6 col-xs-7">
                                 <div
                                     className="main-header--logo fade-box"
                                     itemScope=""
@@ -146,7 +150,8 @@ function Header() {
                                     </a>
                                 </div>
                             </div>
-                            <div className="col-md-4 wrap-header-3 col-sm-6 col-xs-5">
+                            <div className="col-md-2 wrap-header-1 hidden-sm hidden-xs" />
+                            <div className="col-md-3 wrap-header-3 col-sm-6 col-xs-5">
                                 <div className="main-header--action row-flex">
                                     <div className="action--search" id="site-search-handle" style={{ width: "200px", zIndex: 9999 }}>
                                         <ReactSearchAutocomplete
@@ -250,6 +255,11 @@ function Header() {
                                                                 Đánh giá
                                                             </a>
                                                         </li>
+                                                        <li className="">
+                                                            <a href="/manage-color-size" title="Quản lý màu sắc & kích thước">
+                                                                Màu sắc & Kích thước
+                                                            </a>
+                                                        </li>
                                                     </ul>
                                                 </li>
                                             }
@@ -275,6 +285,11 @@ function Header() {
                                                             <li className="">
                                                                 <a href="/purchase-order" title="Đơn hàng của bạn">
                                                                     Đơn hàng của bạn
+                                                                </a>
+                                                            </li>
+                                                            <li className="">
+                                                                <a href="/favorite" title="Sản phẩm yêu thích">
+                                                                    Yêu thích
                                                                 </a>
                                                             </li>
                                                             <li className="">
@@ -361,6 +376,11 @@ function Header() {
                                                         Đánh giá
                                                     </a>
                                                 </li>
+                                                <li className="navi2">
+                                                    <a href="/manage-color-size" title="Quản lý màu sắc & kích thước">
+                                                        Màu sắc & Kích thước
+                                                    </a>
+                                                </li>
                                             </ul>
                                         </li>
                                     }
@@ -391,6 +411,11 @@ function Header() {
                                                         </a>
                                                     </li>
                                                     <li className="navi2">
+                                                        <a href="/favorite" title="Sản phẩm yêu thích">
+                                                            Yêu thích
+                                                        </a>
+                                                    </li>
+                                                    <li className="navi2">
                                                         <a onClick={handleLogout} title="Đăng xuất" style={{ cursor: "pointer" }}>
                                                             Đăng xuất
                                                         </a>
@@ -409,6 +434,7 @@ function Header() {
                     </span>
                 </button>
             </div>
+            <ToastContainer />
         </>
     );
 }

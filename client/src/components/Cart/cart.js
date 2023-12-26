@@ -244,6 +244,8 @@ const Cart = () => {
             } else {
                 toast('Lỗi khi đặt hàng');
             }
+        }).catch((e) => {
+            toast(e.response.data.message);
         });
 
     }

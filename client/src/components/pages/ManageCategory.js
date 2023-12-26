@@ -33,8 +33,8 @@ function ManageCategory() {
         axios.get(`${API_URL}/api/categories`)
             .then(response => {
                 setDatas(response.data);
-            })
-            .catch(() => {
+            }).catch((e) => {
+                toast(e.response.data.message);
             });
     }, [isReload]);
 
@@ -53,8 +53,8 @@ function ManageCategory() {
                 } else {
                     toast('Lỗi khi lấy thông tin danh mục');
                 }
-            })
-            .catch(() => {
+            }).catch((e) => {
+                toast(e.response.data.message);
             });
     };
 
@@ -93,9 +93,8 @@ function ManageCategory() {
             } else {
                 toast('Lỗi khi xóa danh mục');
             }
-        } catch (error) {
-            console.log(error);
-            toast('Lỗi khi gọi API deleteProduct:' + error);
+        } catch (e) {
+            toast(e.response.data.message);
         }
     };
 
@@ -169,8 +168,8 @@ function ManageCategory() {
                 } else {
                     toast('Lỗi khi lấy thông tin danh mục');
                 }
-            })
-            .catch(() => {
+            }).catch((e) => {
+                toast(e.response.data.message);
             });
     }
 
@@ -278,9 +277,8 @@ function ManageCategory() {
             } else {
                 toast('Lỗi khi xóa danh mục con');
             }
-        } catch (error) {
-            console.log(error);
-            toast('Lỗi khi gọi API deleteProduct:' + error);
+        } catch (e) {
+            toast(e.response.data.message);
         }
     };
 
@@ -380,7 +378,7 @@ function ManageCategory() {
                                                                 <tr key={data._id}>
                                                                     <td>{index + 1}</td>
                                                                     <td>{data.name}</td>
-                                                                    <td>
+                                                                    <td style={{display: 'flex'}}>
                                                                         <button className="btn btn-warning" onClick={() => handleClickEdit(data._id)}>Sửa</button>
                                                                         <button className="btn btn-danger ml-2" onClick={() => handleClickDelete(data._id)}>Xóa</button>
                                                                         <button className="btn btn-success ml-2" onClick={() => handleClickSub(data._id)}>Sub</button>

@@ -28,9 +28,8 @@ function ManageRating() {
         axios.get(`${API_URL}/api/ratings/getByUser_Product/${user}/${product}`)
             .then(response => {
                 setDatas(response.data);
-            })
-            .catch((e) => {
-                console.log(e);
+            }).catch((e) => {
+                toast(e.response.data.message);
             });
     }, [isReload]);
 
@@ -38,16 +37,14 @@ function ManageRating() {
         axios.get(`${API_URL}/api/products`)
             .then(response => {
                 setProducts(response.data);
-            })
-            .catch((e) => {
-                console.log(e);
+            }).catch((e) => {
+                toast(e.response.data.message);
             });
         axios.get(`${API_URL}/api/users`)
             .then(response => {
                 setUsers(response.data);
-            })
-            .catch((e) => {
-                console.log(e);
+            }).catch((e) => {
+                toast(e.response.data.message);
             });
     }, []);
 
@@ -86,9 +83,8 @@ function ManageRating() {
             } else {
                 toast('Lỗi khi xóa đánh giá sản phẩm');
             }
-        } catch (error) {
-            console.log(error);
-            toast('Lỗi khi gọi API deleteProduct:' + error);
+        } catch (e) {
+            toast(e.response.data.message);
         }
     };
     const handleCancelDelete = () => {

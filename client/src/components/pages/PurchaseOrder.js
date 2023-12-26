@@ -24,7 +24,8 @@ function PurchaseOrder() {
     useEffect(() => {
         axios.get(`${API_URL}/api/users/${user_id}/orders`)
             .then((response) => setOrders(response.data))
-            .catch(() => {
+            .catch((e) => {
+                toast(e.response.data.message);
             });
     }, [isReload]);
 
@@ -69,8 +70,8 @@ function PurchaseOrder() {
                 } else {
                     toast('Lỗi khi lấy thông tin đơn hàng chi tiết');
                 }
-            })
-            .catch(() => {
+            }).catch((e) => {
+                toast(e.response.data.message);
             });
     }
 
@@ -85,8 +86,8 @@ function PurchaseOrder() {
                         axios.put(`${API_URL}/api/orders/${id}/Hủy đơn`)
                             .then((response) => {
                                 setIsReload(!isReload);
-                            })
-                            .catch(() => {
+                            }).catch((e) => {
+                                toast(e.response.data.message);
                             });
                     }
                 },
@@ -204,7 +205,7 @@ function PurchaseOrder() {
                                                             <td>{order.note}</td>
                                                             <td>{order.status}</td>
                                                             <td>{formattedPrice(order.total_price)}</td>
-                                                            <td>
+                                                            <td style={{display: 'flex'}}>
                                                                 <button className="btn btn-success" onClick={() => handleShowDetail(order._id)}>Chi tiết</button>
                                                                 {
                                                                     order.status === 'Chờ xác nhận' && <button className="btn btn-danger ml-2" onClick={() => changeStatus(order._id)}>Hủy đơn</button>

@@ -3,6 +3,8 @@ import { API_URL } from '../../config';
 import axios from 'axios';
 import { useParams } from "react-router";
 import Pagination from "https://cdn.skypack.dev/rc-pagination@3.1.15";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function Search() {
     let { keyword } = useParams();
@@ -12,8 +14,8 @@ function Search() {
         axios.get(`${API_URL}/api/search/${keyword}`)
             .then((response) => {
                 setDataSearch(response.data);
-            })
-            .catch(() => {
+            }).catch((e) => {
+                toast(e.response.data.message);
             });
     }, []);
 
@@ -161,6 +163,7 @@ function Search() {
                     </div>
                 </div>
             </div>
+            <ToastContainer />
         </main>
 
     );

@@ -44,7 +44,7 @@ exports.addUser = async (req, res) => {
 
     res.status(201).json({ message: 'Người dùng đã được thêm thành công!' });
   } catch (error) {
-    res.status(500).json({ error: 'Lỗi khi thêm người dùng: ' + error.message });
+    res.status(500).json({ error: 'Lỗi khi thêm người dùng' });
   }
 };
 // Lấy tất cả người dùng
@@ -133,7 +133,7 @@ exports.editUser = async (req, res) => {
     res.json(updatedUser);
 
   } catch (error) {
-    res.status(500).json({ message: 'Lỗi khi cập nhật thông tin người dùng' + error });
+    res.status(500).json({ message: 'Lỗi khi cập nhật thông tin người dùng' });
   }
 };
 

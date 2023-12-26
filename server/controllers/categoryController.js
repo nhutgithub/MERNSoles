@@ -73,7 +73,7 @@ exports.editCategory = async (req, res) => {
     res.json(updatedCategory);
 
   } catch (error) {
-    res.status(500).json({ message: 'Lỗi khi cập nhật thông tin Danh mục' + error });
+    res.status(500).json({ message: 'Lỗi khi cập nhật thông tin danh mục' });
   }
 };
 
@@ -102,7 +102,7 @@ exports.deleteCategory = async (req, res) => {
 
     res.json({ message: 'Danh mục đã bị xóa' });
   } catch (error) {
-    res.status(500).json({ message: 'Lỗi khi xóa Danh mục' + error });
+    res.status(500).json({ message: 'Lỗi khi xóa danh mục' });
   }
 };
 

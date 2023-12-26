@@ -5,11 +5,25 @@ const routes = require('./routes/record');
 const nodemailer = require('nodemailer');
 const path = require('path');
 const { connectDB } = require('./db/conn');
+const passport = require("passport");
+const cookieSession = require("cookie-session");
+const passportStrategy = require("./auth/passport");
 
 dotenv.config({ path: "./config.env" });
 
 const app = express();
 const port = process.env.PORT || 5000;
+
+app.use(
+	cookieSession({
+		name: "session",
+		keys: ["cyberwolve"],
+		maxAge: 24 * 60 * 60 * 100,
+	})
+);
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use(cors());
 app.use(express.json());

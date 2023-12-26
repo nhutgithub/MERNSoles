@@ -67,9 +67,8 @@ const ManageRevenue = () => {
                         setContent(response.data.revenue);
                         setSalesData(response.data.salesData);
                     }
-                })
-                .catch((error) => {
-                    console.error('Đã xảy ra lỗi khi lấy doanh thu: ', error);
+                }).catch((e) => {
+                    toast(e.response.data.message);
                 });
         } else {
             alert('Vui lòng chọn thời gian');

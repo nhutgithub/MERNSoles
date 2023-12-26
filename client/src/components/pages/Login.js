@@ -73,12 +73,19 @@ function Login() {
                     console.log(response.data.message);
                 }
             })
-            .catch((e) => alert(e.response.data.message));
+                .catch((e) => alert(e.response.data.message));
         } else {
             setIsLoading(false);
             alert("Vui lòng nhập tên đăng nhập");
         }
     }
+
+    const googleAuth = () => {
+        window.open(
+            `${API_URL}/api/google/callback`,
+            "_self"
+        );
+    };
 
     return (
         <>
@@ -129,13 +136,20 @@ function Login() {
                                                 />
                                             </div>
                                             <div className="clearfix action_account_custommer">
-                                                <div className="action_bottom btn btn-outline-primary">
+                                                <div className="">
                                                     <button
-                                                        className="btn btn-signin"
+                                                        className="btn btn-primary"
                                                         onClick={handleLogin}
                                                     >ĐĂNG NHẬP</button>
                                                 </div>
-                                                <div className="req_pass">
+                                                <div className="">
+                                                    <p className='text'>Hoặc</p>
+                                                    <button className='google_btn' onClick={googleAuth}>
+                                                        <img src="./assets/images/google.png" alt="google icon" />
+                                                        <span>Sign up with Google</span>
+                                                    </button>
+                                                </div>
+                                                <div className="">
                                                     <a
                                                         style={{ cursor: 'pointer' }} onClick={() => sendOtp()}
                                                     >

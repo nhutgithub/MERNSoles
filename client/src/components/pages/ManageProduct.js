@@ -47,30 +47,33 @@ function ManageProduct() {
             .then(response => {
                 setCategory(response.data[0]._id);
                 setCategories(response.data);
-            })
-            .catch(() => {
+            }).catch((e) => {
+                toast(e.response.data.message);
             });
         axios.get(`${API_URL}/api/subcategories/0`)
             .then(response => {
                 setSubCategory(response.data[0]._id);
                 setCategoryItems(response.data);
-            })
-            .catch(() => {
+            }).catch((e) => {
+                toast(e.response.data.message);
             });
         axios.get(`${API_URL}/api/colors`)
             .then(response => setColors(response.data))
-            .catch(() => {
+            .catch((e) => {
+                toast(e.response.data.message);
             });
         axios.get(`${API_URL}/api/sizes`)
             .then(response => setSizes(response.data))
-            .catch(() => {
+            .catch((e) => {
+                toast(e.response.data.message);
             });
     }, []);
 
     useEffect(() => {
         axios.get(`${API_URL}/api/products`)
             .then((response) => setProducts(response.data))
-            .catch(() => {
+            .catch((e) => {
+                toast(e.response.data.message);
             });
     }, [isReload]);
 
@@ -111,8 +114,8 @@ function ManageProduct() {
                 } else {
                     toast('Lỗi khi lấy thông tin đơn hàng chi tiết');
                 }
-            })
-            .catch(() => {
+            }).catch((e) => {
+                toast(e.response.data.message);
             });
     }
 
@@ -171,12 +174,13 @@ function ManageProduct() {
                 } else {
                     toast('Lỗi khi lấy thông tin sản phẩm');
                 }
-            })
-            .catch(() => {
+            }).catch((e) => {
+                toast(e.response.data.message);
             });
         await axios.get(`${API_URL}/api/products/${id}/images`)
             .then(response => { setImages(response.data); })
-            .catch(() => {
+            .catch((e) => {
+                toast(e.response.data.message);
             });
     };
 
@@ -216,8 +220,8 @@ function ManageProduct() {
             } else {
                 toast('Lỗi khi xóa sản phẩm');
             }
-        } catch (error) {
-            toast('Lỗi khi gọi API deleteProduct:', error);
+        } catch (e) {
+            toast(e.response.data.message);
         }
     };
 
@@ -287,8 +291,8 @@ function ManageProduct() {
                     } else {
                         toast('Lỗi khi thêm mới sản phẩm');
                     }
-                })
-                .catch(() => {
+                }).catch((e) => {
+                    toast(e.response.data.message);
                 });
 
         }
@@ -320,8 +324,8 @@ function ManageProduct() {
                     } else {
                         toast('Lỗi khi cập nhật thông tin sản phẩm');
                     }
-                })
-                .catch(() => {
+                }).catch((e) => {
+                    toast(e.response.data.message);
                 });
             setIdItem(0);
         }
@@ -450,8 +454,8 @@ function ManageProduct() {
                                                                         .then(response => {
                                                                             setCategoryItems(response.data);
                                                                             setSubCategory(response.data[0]._id);
-                                                                        })
-                                                                        .catch(() => {
+                                                                        }).catch((e) => {
+                                                                            toast(e.response.data.message);
                                                                         });
                                                                 }}>
                                                                     {categories.map(category => (
@@ -599,7 +603,7 @@ function ManageProduct() {
                                                                     <td>
                                                                         <img src={API_URL + data.url_image1} style={{ width: "100px" }} />
                                                                     </td>
-                                                                    <td>
+                                                                    <td style={{display: 'flex'}}>
                                                                         <button className="btn btn-warning" onClick={() => handleClickEdit(data._id)}>Sửa</button>
                                                                         <button className="btn btn-danger ml-2" onClick={() => handleClickDelete(data._id)}>Xóa</button>
                                                                         <button className="btn btn-success ml-2" onClick={() => handleShowInventoryDetails(data._id)}>Tồn kho</button>

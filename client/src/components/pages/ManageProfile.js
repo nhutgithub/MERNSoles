@@ -7,6 +7,10 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const ManageProfile = () => {
+    const isLoggedIn = localStorage.getItem('isLoggedIn');
+    if (!isLoggedIn) {
+        window.location.href = '/';
+    }
     const [idItem, setIdItem] = useState(0);
     const [userName, setUserName] = useState('')
     const [firstname, setFirstName] = useState('')
@@ -105,7 +109,6 @@ const ManageProfile = () => {
                 toast('Lỗi khi cập nhật thông tin người dùng');
             }
         }).catch((e) => {
-            console.log(e);
             toast(e.response.data.message);
         });
     };

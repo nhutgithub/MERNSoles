@@ -115,7 +115,7 @@ exports.editSubCategory = async (req, res) => {
     res.json(updatedSubCategory);
 
   } catch (error) {
-    res.status(500).json({ message: 'Lỗi khi cập nhật thông tin Danh mục con' + error });
+    res.status(500).json({ message: 'Lỗi khi cập nhật thông tin danh mục con' });
   }
 };
 
@@ -137,7 +137,7 @@ exports.deleteSubCategory = async (req, res) => {
 
     res.json({ message: 'Danh mục con đã bị xóa' });
   } catch (error) {
-    res.status(500).json({ message: 'Lỗi khi xóa Danh mục con' + error });
+    res.status(500).json({ message: 'Lỗi khi xóa danh mục con' });
   }
 };
 

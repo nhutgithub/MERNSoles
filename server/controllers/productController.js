@@ -4,11 +4,12 @@ const Order = require('../models/orderModel');
 const OrderItem = require('../models/orderItemModel');
 const Subcategory = require('../models/subcategoryModel');
 const Image = require('../models/imageProductModel');
+const Category = require('../models/categoryModel');
+const Favorite = require('../models/favoriteModel');
+
 const fs = require('fs');
 const path = require('path');
-
 const multer = require('multer');
-const Category = require('../models/categoryModel');
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -171,7 +172,7 @@ exports.createProduct = async (req, res) => {
                     product_id: product._id,
                     size_id: colorSize.size,
                     color_id: colorSize.color,
-                    quantity: colorSize.quantity,
+                    quantity: colorSize.quantity
                 });
                 await colorSizeProduct.save();
             }
@@ -415,6 +416,23 @@ exports.checkUserHasPurchased = async (req, res) => {
             res.status(201).json({ message: 'Null' });
         }
     } catch (error) {
+        res.status(500).json({ message: 'Lỗi' });
+    }
+};
+
+exports.isProductFavorite = async (req, res) => {
+    try {
+        const { userId, productId } = req.params;
+
+        const favorite = await Favorite.find({ product_id: productId, user_id: userId });
+
+        if (favorite.length != 0) {
+            res.status(200).json({ message: 'Success' });
+        } else {
+            res.status(201).json({ message: 'Null' });
+        }
+    } catch (error) {
+        console.log(error);
         res.status(500).json({ message: 'Lỗi' });
     }
 };

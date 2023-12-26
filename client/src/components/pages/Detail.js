@@ -6,6 +6,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useCart } from '../Cart/CartContext';
 import ReviewAndRatingComponent from '../common/ReviewAndRatingComponent';
+import Heart from "react-animated-heart";
 
 function Detail() {
     const user_id = localStorage.getItem('user_id');
@@ -21,41 +22,60 @@ function Detail() {
     const sizeRef = new useRef(null);
     const [checkUserHasPurchased, setCheckUserHasPurchased] = useState(false);
 
+    const [isClick, setClick] = useState(false);
+
     let { id } = useParams();
     useEffect(() => {
         axios.get(`${API_URL}/api/products/${id}`)
             .then(response => {
-                setProduct(response.data)
-                axios.get(`${API_URL}/api/subcategories/${response.data.subcategory_id}/products/${id}`)
+                const data = response.data;
+
+                setProduct(data);
+
+                axios.get(`${API_URL}/api/subcategories/${data.subcategory_name}/manual/products`)
                     .then(response => {
-                        setListProduct(response.data);
-                    })
-                    .catch(() => {
+                        const filteredData = response.data.filter(item => item._id !== id);
+
+                        setListProduct(filteredData);
+                    }).catch((e) => {
+                        console.log(e);
+                        toast(e.response.data.message);
                     });
-            })
-            .catch(() => {
+            }).catch((e) => {
+                toast(e.response.data.message);
             });
         axios.get(`${API_URL}/api/products/${id}/images`)
             .then(response => { setImages(response.data); })
-            .catch(() => {
+            .catch((e) => {
+                toast(e.response.data.message);
             });
         axios.get(`${API_URL}/api/productsizecolors/${id}`)
             .then((response) => {
                 if (response.status === 200) {
                     setProductSizeColor(response.data);
                 }
-            })
-            .catch(() => {
+            }).catch((e) => {
+                toast(e.response.data.message);
             });
         setTimeout(() => {
-            axios.get(`${API_URL}/api/products/${user_id}/${id}`)
-                .then(response => {
-                    if (response.status == 200) {
-                        setCheckUserHasPurchased(true);
-                    }
-                })
-                .catch(() => {
-                });
+            if (user_id != null) {
+                axios.get(`${API_URL}/api/products/${user_id}/${id}`)
+                    .then(response => {
+                        if (response.status == 200) {
+                            setCheckUserHasPurchased(true);
+                        }
+                    }).catch((e) => {
+                        toast(e.response.data.message);
+                    });
+                axios.get(`${API_URL}/api/products/${user_id}/${id}/favorite`)
+                    .then(response => {
+                        if (response.status == 200) {
+                            setClick(true);
+                        }
+                    }).catch((e) => {
+                        toast(e.response.data.message);
+                    });
+            }
         }, 100);
     }, []);
 
@@ -168,8 +188,8 @@ function Detail() {
         axios.get(`${API_URL}/api/ratings/${id}`)
             .then(response => {
                 setComments(response.data)
-            })
-            .catch(() => {
+            }).catch((e) => {
+                toast(e.response.data.message);
             });
     }, [isReload]);
 
@@ -202,6 +222,7 @@ function Detail() {
                 toast(e.response.data.message);
             });
     };
+
     const formatDate = (date) => {
         if (!date) return '';
         const d = new Date(date);
@@ -212,6 +233,40 @@ function Detail() {
         const minutes = d.getMinutes().toString().padStart(2, '0');
 
         return `${day}/${month}/${year} ${hours}:${minutes}`;
+    }
+
+    const handleClickFavorite = () => {
+        if (isClick) {
+            axios.delete(`${API_URL}/api/favorites/${user_id}/${id}`)
+                .then(response => {
+                    if (response.status == 200) {
+                        setClick(false);
+                    }
+                    toast(response.data.message);
+                })
+                .catch((e) => {
+                    toast(e.response.data.message);
+                });
+        }
+        else {
+            const currentTime = new Date();
+            const newData = {
+                product_id: id,
+                user_id: user_id,
+                created_at: currentTime
+            };
+
+            axios.post(`${API_URL}/api/favorites`, newData)
+                .then(response => {
+                    if (response.status == 201) {
+                        setClick(true);
+                    }
+                    toast(response.data.message);
+                })
+                .catch((e) => {
+                    toast(e.response.data.message);
+                });
+        }
     }
 
     return (
@@ -315,97 +370,95 @@ function Detail() {
                                     </div>
                                 </div>
                                 <div
-                                    className="col-md-5 col-sm-12 col-xs-12 product-content-desc"
+                                    className="col-md-5 col-sm-12 col-xs-12"
                                     id="detail-product"
                                 >
+                                    {
+                                        user_id !== null && <Heart isClick={isClick} onClick={() => handleClickFavorite()} />
+                                    }
+
                                     <div className="product-title">
                                         <h1>{product.product_name}</h1>
                                         <span id="pro_sku">
                                             <strong>SKU:</strong> ATN0146MMDE
                                         </span>
                                     </div>
+
                                     <div className="product-price" id="price-preview">
                                         <span className="pro-price">{formattedPrice(product.price)}</span>
                                     </div>
-                                    <form
-                                        id="add-item-form"
-                                        action="/cart/add"
-                                        method="post"
-                                        className="variants clearfix"
-                                    >
-                                        <div className="clearfix">
-                                            <select className='form-control' ref={sizeRef}>
-                                                {productSizeColor.map(size => (
-                                                    <option key={size._id}>Màu: {size.color_id.color_name} / Kích thước: {size.size_id.size_name}</option>
-                                                ))}
-                                            </select>
-                                        </div>
-                                        <div className="select-swatch clearfix">
-                                            <div
-                                                id="variant-swatch-0"
-                                                className="swatch clearfix swarch-size"
-                                                data-option="option1"
-                                                data-option-index={0}
+                                    <div className="clearfix">
+                                        <select className='form-control' ref={sizeRef}>
+                                            {productSizeColor.map(size => (
+                                                <option key={size._id}>Màu: {size.color_id.color_name} / Kích thước: {size.size_id.size_name}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div className="select-swatch clearfix">
+                                        <div
+                                            id="variant-swatch-0"
+                                            className="swatch clearfix swarch-size"
+                                            data-option="option1"
+                                            data-option-index={0}
+                                        >
+                                            <a
+                                                className="pull-right"
+                                                style={{ margin: "10px 25px", cursor: "pointer" }}
+                                                onClick={() => {
+                                                    contentRef.current.scrollIntoView({ behavior: 'smooth' })
+                                                }}
                                             >
-                                                <a
-                                                    className="pull-right"
-                                                    style={{ margin: "10px 25px", cursor: "pointer" }}
-                                                    onClick={() => {
-                                                        contentRef.current.scrollIntoView({ behavior: 'smooth' })
-                                                    }}
-                                                >
-                                                    CÁCH CHỌN SIZE
-                                                </a>
-                                            </div>
+                                                CÁCH CHỌN SIZE
+                                            </a>
                                         </div>
-                                        <div className="selector-actions">
-                                            <div className="quantity-area clearfix">
-                                                <input
-                                                    type="button"
-                                                    defaultValue="-"
-                                                    className="qty-btn"
-                                                    onClick={handleDecreaseQuantity}
-                                                />
-                                                <input
-                                                    value={quantity}
-                                                    type="text"
-                                                    id="quantity"
-                                                    name="quantity"
-                                                    min={1}
-                                                    className="quantity-selector"
-                                                />
-                                                <input
-                                                    type="button"
-                                                    defaultValue="+"
-                                                    className="qty-btn"
-                                                    onClick={handleIncreaseQuantity}
-                                                />
-                                            </div>
-                                            <div className="wrap-addcart clearfix">
-                                                <div className="row-flex">
-                                                    <button
-                                                        type="button"
-                                                        id="add-to-cart"
-                                                        className=" add-to-cartProduct button btn-addtocart addtocart-modal "
-                                                        name="add"
-                                                        onClick={addToCart}
-                                                    >
-                                                        <span> Thêm vào giỏ </span>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className="product-action-bottom visible-xs">
-                                            <button
+                                    </div>
+                                    <div className="selector-actions">
+                                        <div className="quantity-area clearfix">
+                                            <input
                                                 type="button"
-                                                id="add-to-cartbottom"
-                                                className=" add-to-cartProduct add-cart-bottom button dark addtocart-modal"
-                                                name="add"
-                                            >
-                                                <span> Thêm vào giỏ </span>
-                                            </button>
+                                                defaultValue="-"
+                                                className="qty-btn"
+                                                onClick={handleDecreaseQuantity}
+                                            />
+                                            <input
+                                                value={quantity}
+                                                type="text"
+                                                id="quantity"
+                                                name="quantity"
+                                                min={1}
+                                                className="quantity-selector"
+                                            />
+                                            <input
+                                                type="button"
+                                                defaultValue="+"
+                                                className="qty-btn"
+                                                onClick={handleIncreaseQuantity}
+                                            />
                                         </div>
-                                    </form>
+                                        <div className="wrap-addcart clearfix">
+                                            <div className="row-flex">
+                                                <button
+                                                    type="button"
+                                                    id="add-to-cart"
+                                                    className=" add-to-cartProduct button btn-addtocart addtocart-modal "
+                                                    name="add"
+                                                    onClick={addToCart}
+                                                >
+                                                    <span> Thêm vào giỏ </span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="product-action-bottom visible-xs">
+                                        <button
+                                            type="button"
+                                            id="add-to-cartbottom"
+                                            className=" add-to-cartProduct add-cart-bottom button dark addtocart-modal"
+                                            name="add"
+                                        >
+                                            <span> Thêm vào giỏ </span>
+                                        </button>
+                                    </div>
                                     <div className="hrv-pmo-coupon" data-hrvpmo-layout="minimum" />
                                     <div className="hrv-pmo-discount" data-hrvpmo-layout="minimum" />
                                     <div className="product-description">

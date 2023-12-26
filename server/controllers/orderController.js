@@ -8,7 +8,10 @@ const Size = require('../models/sizeModel');
 // Lấy tất cả đơn hàng
 exports.getAllOrders = async (req, res) => {
   try {
-    const orders = await Order.find();
+    const status = req.params.status;
+    const query = status !== 'Tất cả' ? { status } : {};
+
+    const orders = await Order.find(query);
     res.json(orders);
   } catch (error) {
     res.status(500).json({ message: 'Lỗi khi lấy danh sách đơn hàng' });

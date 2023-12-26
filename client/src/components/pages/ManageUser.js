@@ -35,15 +35,16 @@ function ManageUser() {
             .then(response => {
                 setRole(response.data[0]._id);
                 setRoles(response.data);
-            })
-            .catch(() => {
+            }).catch((e) => {
+                toast(e.response.data.message);
             });
     }, []);
 
     useEffect(() => {
         axios.get(`${API_URL}/api/users`)
             .then((response) => setUsers(response.data))
-            .catch(() => {
+            .catch((e) => {
+                toast(e.response.data.message);
             });
     }, [isReload]);
 
@@ -69,8 +70,8 @@ function ManageUser() {
                 } else {
                     toast('Lỗi khi lấy thông tin người dùng');
                 }
-            })
-            .catch(() => {
+            }).catch((e) => {
+                toast(e.response.data.message);
             });
     };
 
@@ -110,8 +111,8 @@ function ManageUser() {
             } else {
                 toast('Lỗi khi xóa người dùng');
             }
-        } catch (error) {
-            toast('Lỗi khi gọi API deleteUser:', error);
+        } catch (e) {
+            toast(e.response.data.message);
         }
     };
 
@@ -350,7 +351,7 @@ function ManageUser() {
                                                                 <td>{user.email}</td>
                                                                 <td>{user.address}</td>
                                                                 <td>{user.idRole.roleName}</td>
-                                                                <td>
+                                                                <td style={{display: 'flex'}}>
                                                                     <button className="btn btn-warning" onClick={() => handleClickEdit(user._id)}>Sửa</button>
                                                                     <button className="btn btn-danger ml-2" onClick={() => handleClickDelete(user._id)}>Xóa</button>
                                                                 </td>
