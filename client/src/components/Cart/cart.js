@@ -206,7 +206,7 @@ const Cart = () => {
 
             const newData = {
                 product_id: item.product_id,
-                color: item.price,
+                price: item.price,
                 color: color,
                 size: size,
                 quantity: item.qty,
