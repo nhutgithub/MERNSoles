@@ -64,11 +64,29 @@ exports.getRevenue = async (req, res) => {
                 if (salesData.length === 0) {
                     return res.json({ revenue: 0 + ' đồng' });;
                 }
-                const totalSales = salesData.reduce((acc, item) => acc + item.totalPrice, 0);
-                salesData.sort((a, b) => b.totalQuantity - a.totalQuantity);
+                const groupedSalesData = filteredOrderItems.reduce((acc, item) => {
+                    const existingItem = acc.find(x => x.product_id === item.product_id);
+                    if (existingItem) {
+                        existingItem.totalQuantity += item.totalQuantity;
+                        existingItem.totalPrice += item.totalPrice;
+                    } else {
+                        acc.push({
+                            product_id: item.product_id,
+                            productName: item.productName,
+                            totalQuantity: item.totalQuantity,
+                            totalPrice: item.totalPrice,
+                        });
+                    }
+                    return acc;
+                }, []);
+
+                // Sắp xếp dữ liệu theo tổng số lượng giảm dần
+                const sortedSalesData = groupedSalesData.sort((a, b) => b.totalQuantity - a.totalQuantity);
+
+                const totalSales = groupedSalesData.reduce((acc, item) => acc + item.totalPrice, 0);
 
                 const formattedData = new Intl.NumberFormat('vi-VN').format(totalSales) + ' đồng';
-                res.json({ revenue: formattedData, salesData: salesData });
+                res.json({ revenue: formattedData, salesData: sortedSalesData });
             } else if (data.date) {
                 const date = new Date(data.date);
                 const year = date.getFullYear();
@@ -130,11 +148,29 @@ exports.getRevenue = async (req, res) => {
                 if (salesData.length === 0) {
                     return res.json({ revenue: 0 + ' đồng' });;
                 }
-                const totalSales = salesData.reduce((acc, item) => acc + item.totalPrice, 0);
-                salesData.sort((a, b) => b.totalQuantity - a.totalQuantity);
+                const groupedSalesData = filteredOrderItems.reduce((acc, item) => {
+                    const existingItem = acc.find(x => x.product_id === item.product_id);
+                    if (existingItem) {
+                        existingItem.totalQuantity += item.totalQuantity;
+                        existingItem.totalPrice += item.totalPrice;
+                    } else {
+                        acc.push({
+                            product_id: item.product_id,
+                            productName: item.productName,
+                            totalQuantity: item.totalQuantity,
+                            totalPrice: item.totalPrice,
+                        });
+                    }
+                    return acc;
+                }, []);
+
+                // Sắp xếp dữ liệu theo tổng số lượng giảm dần
+                const sortedSalesData = groupedSalesData.sort((a, b) => b.totalQuantity - a.totalQuantity);
+
+                const totalSales = groupedSalesData.reduce((acc, item) => acc + item.totalPrice, 0);
 
                 const formattedData = new Intl.NumberFormat('vi-VN').format(totalSales) + ' đồng';
-                res.json({ revenue: formattedData, salesData: salesData });
+                res.json({ revenue: formattedData, salesData: sortedSalesData });
             } else if (data.month && data.year) {
                 const year = parseInt(data.year);
                 const month = parseInt(data.month);
@@ -194,11 +230,29 @@ exports.getRevenue = async (req, res) => {
                 if (salesData.length === 0) {
                     return res.json({ revenue: 0 + ' đồng' });;
                 }
-                const totalSales = salesData.reduce((acc, item) => acc + item.totalPrice, 0);
-                salesData.sort((a, b) => b.totalQuantity - a.totalQuantity);
+                const groupedSalesData = filteredOrderItems.reduce((acc, item) => {
+                    const existingItem = acc.find(x => x.product_id === item.product_id);
+                    if (existingItem) {
+                        existingItem.totalQuantity += item.totalQuantity;
+                        existingItem.totalPrice += item.totalPrice;
+                    } else {
+                        acc.push({
+                            product_id: item.product_id,
+                            productName: item.productName,
+                            totalQuantity: item.totalQuantity,
+                            totalPrice: item.totalPrice,
+                        });
+                    }
+                    return acc;
+                }, []);
+
+                // Sắp xếp dữ liệu theo tổng số lượng giảm dần
+                const sortedSalesData = groupedSalesData.sort((a, b) => b.totalQuantity - a.totalQuantity);
+
+                const totalSales = groupedSalesData.reduce((acc, item) => acc + item.totalPrice, 0);
 
                 const formattedData = new Intl.NumberFormat('vi-VN').format(totalSales) + ' đồng';
-                res.json({ revenue: formattedData, salesData: salesData });
+                res.json({ revenue: formattedData, salesData: sortedSalesData });
             }
             else if (data.year) {
                 const year = parseInt(data.year);
@@ -258,14 +312,30 @@ exports.getRevenue = async (req, res) => {
                 if (salesData.length === 0) {
                     return res.json({ revenue: 0 + ' đồng' });;
                 }
-                const totalSales = salesData.reduce((acc, item) => acc + item.totalPrice, 0);
-                salesData.sort((a, b) => b.totalQuantity - a.totalQuantity);
+                const groupedSalesData = filteredOrderItems.reduce((acc, item) => {
+                    const existingItem = acc.find(x => x.product_id === item.product_id);
+                    if (existingItem) {
+                        existingItem.totalQuantity += item.totalQuantity;
+                        existingItem.totalPrice += item.totalPrice;
+                    } else {
+                        acc.push({
+                            product_id: item.product_id,
+                            productName: item.productName,
+                            totalQuantity: item.totalQuantity,
+                            totalPrice: item.totalPrice,
+                        });
+                    }
+                    return acc;
+                }, []);
+
+                // Sắp xếp dữ liệu theo tổng số lượng giảm dần
+                const sortedSalesData = groupedSalesData.sort((a, b) => b.totalQuantity - a.totalQuantity);
+
+                const totalSales = groupedSalesData.reduce((acc, item) => acc + item.totalPrice, 0);
 
                 const formattedData = new Intl.NumberFormat('vi-VN').format(totalSales) + ' đồng';
-                res.json({ revenue: formattedData, salesData: salesData });
+                res.json({ revenue: formattedData, salesData: sortedSalesData });
             }
-
-
         } catch (error) {
             console.error(error);
             res.status(500).json({ error: 'Lỗi server.' });

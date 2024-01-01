@@ -7,6 +7,20 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 function Header() {
+    // Tên tệp JavaScript và đường dẫn
+    const scripts = [
+        '/assets/js/plugins.js',
+        '/assets/js/scripts.js'
+    ];
+
+    // Tải và thêm tệp JavaScript vào trang
+    scripts.forEach((path) => {
+        const script = document.createElement('script');
+        script.src = path;
+        script.type = 'text/javascript';
+
+        document.body.appendChild(script);
+    });
     const { productsCount, addToCart, removeToCart } = useCart();
 
     const isLoggedIn = localStorage.getItem('isLoggedIn');
@@ -39,20 +53,6 @@ function Header() {
             .catch((e) => {
                 toast(e.response.data.message);
             });
-        // Tên tệp JavaScript và đường dẫn
-        const scripts = [
-            '/assets/js/plugins.js',
-            '/assets/js/scripts.js'
-        ];
-
-        // Tải và thêm tệp JavaScript vào trang
-        scripts.forEach((path) => {
-            const script = document.createElement('script');
-            script.src = path;
-            script.type = 'text/javascript';
-
-            document.body.appendChild(script);
-        });
     }, []);
 
     const handleOnSearch = (string) => {
