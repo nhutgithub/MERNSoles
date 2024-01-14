@@ -64,7 +64,7 @@ exports.getRevenue = async (req, res) => {
                 if (salesData.length === 0) {
                     return res.json({ revenue: 0 + ' đồng' });;
                 }
-                const groupedSalesData = filteredOrderItems.reduce((acc, item) => {
+                const groupedSalesData = salesData.reduce((acc, item) => {
                     const existingItem = acc.find(x => x.product_id === item.product_id);
                     if (existingItem) {
                         existingItem.totalQuantity += item.totalQuantity;
@@ -148,7 +148,7 @@ exports.getRevenue = async (req, res) => {
                 if (salesData.length === 0) {
                     return res.json({ revenue: 0 + ' đồng' });;
                 }
-                const groupedSalesData = filteredOrderItems.reduce((acc, item) => {
+                const groupedSalesData = salesData.reduce((acc, item) => {
                     const existingItem = acc.find(x => x.product_id === item.product_id);
                     if (existingItem) {
                         existingItem.totalQuantity += item.totalQuantity;
@@ -230,7 +230,7 @@ exports.getRevenue = async (req, res) => {
                 if (salesData.length === 0) {
                     return res.json({ revenue: 0 + ' đồng' });;
                 }
-                const groupedSalesData = filteredOrderItems.reduce((acc, item) => {
+                const groupedSalesData = salesData.reduce((acc, item) => {
                     const existingItem = acc.find(x => x.product_id === item.product_id);
                     if (existingItem) {
                         existingItem.totalQuantity += item.totalQuantity;
@@ -312,7 +312,7 @@ exports.getRevenue = async (req, res) => {
                 if (salesData.length === 0) {
                     return res.json({ revenue: 0 + ' đồng' });;
                 }
-                const groupedSalesData = filteredOrderItems.reduce((acc, item) => {
+                const groupedSalesData = salesData.reduce((acc, item) => {
                     const existingItem = acc.find(x => x.product_id === item.product_id);
                     if (existingItem) {
                         existingItem.totalQuantity += item.totalQuantity;
